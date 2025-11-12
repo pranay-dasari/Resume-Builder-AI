@@ -34,10 +34,16 @@ const ProfileIcon: React.FC<{network: string}> = ({ network }) => {
 }
 
 const ModernTemplate: React.FC<ResumeTemplateProps> = ({ data, settings }) => {
-    const { basics, summary, experience, education, skills, profiles, languages, certifications, projects, references } = data;
+    const { basics, summary, experience, education, skills, profiles, languages, certifications, projects, interests, references } = data;
     const { colors, typography } = settings;
     
     type RenderContext = 'sidebar' | 'main';
+
+    const formatUrl = (url: string) => {
+        if (!url) return '';
+        if (url.startsWith('http://') || url.startsWith('https://')) return url;
+        return `https://${url}`;
+    };
 
     const renderSummaryList = (text: string) => {
         return text.split('\n').map((line, index) => {
@@ -106,7 +112,7 @@ const ModernTemplate: React.FC<ResumeTemplateProps> = ({ data, settings }) => {
             title: "Profiles",
             isVisible: profiles.length > 0,
             render: () => profiles.map(p => (
-                <a key={p.id} href={p.url} target="_blank" rel="noopener noreferrer" className="flex items-center text-sm mb-1 hover:opacity-80 break-all">
+                <a key={p.id} href={formatUrl(p.url)} target="_blank" rel="noopener noreferrer" className="flex items-center text-sm mb-1 hover:opacity-80 break-all">
                    <ProfileIcon network={p.network} />
                    <span>{p.username}</span>
                 </a>
@@ -142,6 +148,11 @@ const ModernTemplate: React.FC<ResumeTemplateProps> = ({ data, settings }) => {
                    <span className="font-light">{lang.fluency}</span>
                 </div>
             ))
+        },
+        interests: {
+            title: "Interests",
+            isVisible: interests.length > 0,
+            render: () => <p className="text-sm font-light">{interests.map(i => i.name).join(', ')}</p>
         },
         references: {
             title: "References",
@@ -211,7 +222,7 @@ const ModernTemplate: React.FC<ResumeTemplateProps> = ({ data, settings }) => {
                      <span className="text-gray-300">&#9679;</span>
                     <span>{basics.email}</span>
                      <span className="text-gray-300">&#9679;</span>
-                    <span>{basics.website}</span>
+                     <a href={formatUrl(basics.website)} target="_blank" rel="noopener noreferrer" className="hover:underline">{basics.website}</a>
                 </div>
                 
                 {column1Keys.map(key => {

@@ -66,6 +66,11 @@ export interface Project {
   url?: string;
 }
 
+export interface Interest {
+  id: string;
+  name: string;
+}
+
 // Keys for sections that can be reordered
 export type ReorderableSectionKey = 
   | 'summary'
@@ -76,6 +81,7 @@ export type ReorderableSectionKey =
   | 'certifications'
   | 'skills'
   | 'languages'
+  | 'interests'
   | 'references';
 
 
@@ -89,6 +95,7 @@ export interface ResumeData {
   languages: Language[];
   certifications: Certification[];
   projects: Project[];
+  interests: Interest[];
   references: string;
   sectionOrder: ReorderableSectionKey[];
   layout: {
@@ -162,6 +169,11 @@ export const initialResumeData: ResumeData = {
     { id: '1', name: 'E-Commerce Platform', role: 'Project Lead', description: 'Led the development of a full-stack e-commerce platform, improving sales conversion by 25%.', url: '' },
     { id: '2', name: 'Interactive Dashboard', role: 'Frontend Developer', description: 'Created an interactive analytics dashboard for a SaaS application, enhancing data visualization for clients.', url: '' },
   ],
+  interests: [
+    { id: '1', name: 'Hiking' },
+    { id: '2', name: 'Photography' },
+    { id: '3', name: 'Open Source Contribution' },
+  ],
   references: '',
   sectionOrder: [
     'summary',
@@ -172,16 +184,29 @@ export const initialResumeData: ResumeData = {
     'education',
     'languages',
     'certifications',
+    'interests',
     'references',
   ],
   layout: {
     'Default': {
       column1: ['summary', 'experience', 'projects'],
-      column2: ['profiles', 'skills', 'education', 'languages', 'certifications', 'references']
+      column2: ['profiles', 'skills', 'education', 'languages', 'certifications', 'interests', 'references']
     },
     'Modern': {
       column1: ['summary', 'experience', 'education', 'projects'],
-      column2: ['profiles', 'skills', 'certifications', 'languages', 'references']
+      column2: ['profiles', 'skills', 'certifications', 'languages', 'interests', 'references']
+    },
+    'Creative': {
+      column1: ['education', 'skills', 'profiles', 'languages', 'certifications', 'interests'],
+      column2: ['summary', 'experience', 'projects', 'references']
+    },
+    'Elegant': {
+      column1: ['profiles', 'languages', 'certifications', 'interests'],
+      column2: ['summary', 'experience', 'education', 'skills', 'projects', 'references']
+    },
+    'Corporate': {
+      column1: ['skills', 'education', 'projects', 'profiles', 'languages', 'certifications', 'interests'],
+      column2: ['summary', 'experience', 'references']
     }
   }
 };

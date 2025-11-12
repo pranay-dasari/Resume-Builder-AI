@@ -11,12 +11,12 @@ interface CustomizationPanelProps {
   onUpdate: (settings: CustomizationSettings) => void;
 }
 
-type Tab = 'Templates' | 'Colors' | 'Typography' | 'Layout';
+type Tab = 'Templates' | 'Typography' | 'Layout';
 
 const CustomizationPanel: React.FC<CustomizationPanelProps> = ({ settings, onUpdate }) => {
-  const [activeTab, setActiveTab] = useState<Tab>('Colors');
+  const [activeTab, setActiveTab] = useState<Tab>('Templates');
 
-  const tabs: Tab[] = ['Templates', 'Colors', 'Typography', 'Layout'];
+  const tabs: Tab[] = ['Templates', 'Typography', 'Layout'];
 
   return (
     <div className="flex flex-col">
@@ -38,8 +38,13 @@ const CustomizationPanel: React.FC<CustomizationPanelProps> = ({ settings, onUpd
         </nav>
       </div>
       <div className="p-4">
-        {activeTab === 'Templates' && <TemplateTab settings={settings} onUpdate={onUpdate} />}
-        {activeTab === 'Colors' && <ColorTab settings={settings} onUpdate={onUpdate} />}
+        {activeTab === 'Templates' && (
+            <>
+                <TemplateTab settings={settings} onUpdate={onUpdate} />
+                <hr className="my-6 border-gray-200 dark:border-gray-700" />
+                <ColorTab settings={settings} onUpdate={onUpdate} />
+            </>
+        )}
         {activeTab === 'Typography' && <TypographyTab settings={settings} onUpdate={onUpdate} />}
         {activeTab === 'Layout' && <LayoutTab settings={settings} onUpdate={onUpdate} />}
       </div>

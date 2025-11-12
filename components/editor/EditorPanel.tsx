@@ -10,6 +10,7 @@ import ProfilesSection from './ProfilesSection';
 import LanguagesSection from './LanguagesSection';
 import CertificationsSection from './CertificationsSection';
 import ProjectsSection from './ProjectsSection';
+import InterestsSection from './InterestsSection';
 import ReferencesSection from './ReferencesSection';
 
 interface EditorPanelProps {
@@ -41,6 +42,7 @@ const EditorPanel: React.FC<EditorPanelProps> = ({ resumeData, onUpdate, templat
     certifications: { title: 'Certifications', component: <CertificationsSection certifications={resumeData.certifications} onUpdate={certifications => onUpdate({ ...resumeData, certifications })} /> },
     skills: { title: 'Skills', component: <SkillsSection skills={resumeData.skills} onUpdate={skills => onUpdate({ ...resumeData, skills })} /> },
     languages: { title: 'Languages', component: <LanguagesSection languages={resumeData.languages} onUpdate={languages => onUpdate({ ...resumeData, languages })} /> },
+    interests: { title: 'Interests', component: <InterestsSection interests={resumeData.interests} onUpdate={interests => onUpdate({ ...resumeData, interests })} /> },
     references: { title: 'References', component: <ReferencesSection references={resumeData.references} onUpdate={references => onUpdate({ ...resumeData, references })} /> },
   };
 
@@ -135,6 +137,9 @@ const EditorPanel: React.FC<EditorPanelProps> = ({ resumeData, onUpdate, templat
   const getColumnTitles = () => {
       if (template === 'Default') return { col1: 'Main Column (Left)', col2: 'Sidebar (Right)' };
       if (template === 'Modern') return { col1: 'Main Column (Right)', col2: 'Sidebar (Left)' };
+      if (template === 'Creative') return { col1: 'Sidebar (Left)', col2: 'Main Column (Right)' };
+      if (template === 'Elegant') return { col1: 'Sidebar (Left)', col2: 'Main Column (Right)' };
+      if (template === 'Corporate') return { col1: 'Sidebar (Left)', col2: 'Main Column (Right)' };
       return { col1: 'Main Column', col2: 'Sidebar Column' };
   }
   const columnTitles = getColumnTitles();

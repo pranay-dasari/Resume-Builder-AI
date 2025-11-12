@@ -4,6 +4,9 @@ import { FontStyle, FontWeight } from '../../constants';
 import DefaultTemplate from './DefaultTemplate';
 import ModernTemplate from './ModernTemplate';
 import ProfessionalTemplate from './ProfessionalTemplate';
+import CreativeTemplate from './CreativeTemplate';
+import ElegantTemplate from './ElegantTemplate';
+import CorporateTemplate from './CorporateTemplate';
 
 interface ResumeTemplateProps {
     data: ResumeData;
@@ -44,6 +47,12 @@ const ResumeTemplate: React.FC<ResumeTemplateProps> = ({ data, settings }) => {
                         return <ProfessionalTemplate data={data} settings={settings} />;
                     case 'Modern':
                         return <ModernTemplate data={data} settings={settings} />;
+                    case 'Creative':
+                        return <CreativeTemplate data={data} settings={settings} />;
+                    case 'Elegant':
+                        return <ElegantTemplate data={data} settings={settings} />;
+                    case 'Corporate':
+                        return <CorporateTemplate data={data} settings={settings} />;
                     case 'Default':
                     default:
                         return <DefaultTemplate data={data} settings={settings} />;

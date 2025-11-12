@@ -16,8 +16,14 @@ const Section: React.FC<{title: string; primaryColor: string; children: React.Re
 );
 
 const DefaultTemplate: React.FC<ResumeTemplateProps> = ({ data, settings }) => {
-    const { basics, summary, experience, education, skills, profiles, languages, projects, certifications, references } = data;
+    const { basics, summary, experience, education, skills, profiles, languages, projects, certifications, interests, references } = data;
     const { colors, typography } = settings;
+
+    const formatUrl = (url: string) => {
+        if (!url) return '';
+        if (url.startsWith('http://') || url.startsWith('https://')) return url;
+        return `https://${url}`;
+    };
 
     const renderSummary = (text: string) => {
         return text.split('\n').map((line, index) => {
@@ -55,7 +61,7 @@ const DefaultTemplate: React.FC<ResumeTemplateProps> = ({ data, settings }) => {
                         <h3 className="font-bold text-base">{proj.name}</h3>
                         <p className="text-sm font-semibold italic">{proj.role}</p>
                         <p className="text-sm mt-1">{proj.description}</p>
-                        {proj.url && <a href={proj.url} target="_blank" rel="noopener noreferrer" className="block text-xs text-blue-600 hover:underline mt-1">{proj.url}</a>}
+                        {proj.url && <a href={formatUrl(proj.url)} target="_blank" rel="noopener noreferrer" className="block text-xs text-blue-600 hover:underline mt-1">{proj.url}</a>}
                     </div>
                 ))}
             </Section>
@@ -63,7 +69,7 @@ const DefaultTemplate: React.FC<ResumeTemplateProps> = ({ data, settings }) => {
         profiles: profiles.length > 0 ? (
             <Section title="Profiles" primaryColor={colors.primary}>
                 {profiles.map(p => (
-                    <a key={p.id} href={p.url} target="_blank" rel="noopener noreferrer" className="block text-sm hover:underline" style={{color: colors.primary}}>{p.network}: {p.username}</a>
+                    <a key={p.id} href={formatUrl(p.url)} target="_blank" rel="noopener noreferrer" className="block text-sm hover:underline" style={{color: colors.primary}}>{p.network}: {p.username}</a>
                 ))}
             </Section>
         ) : null,
@@ -103,6 +109,11 @@ const DefaultTemplate: React.FC<ResumeTemplateProps> = ({ data, settings }) => {
                         <p className="text-xs">{c.issuer} ({c.date})</p>
                     </div>
                 ))}
+            </Section>
+        ) : null,
+        interests: interests.length > 0 ? (
+            <Section title="Interests" primaryColor={colors.primary}>
+                <p className="text-sm">{interests.map(i => i.name).join(', ')}</p>
             </Section>
         ) : null,
         references: references ? (
@@ -154,7 +165,7 @@ const DefaultTemplate: React.FC<ResumeTemplateProps> = ({ data, settings }) => {
             <div className="text-xs mb-6 flex flex-wrap justify-between items-center border-y py-2" style={{ borderColor: colors.primary + '33' }}>
                 <span>{basics.email}</span>
                 <span>{basics.phone}</span>
-                <span>{basics.website}</span>
+                <a href={formatUrl(basics.website)} target="_blank" rel="noopener noreferrer" className="hover:underline">{basics.website}</a>
                 <span>{basics.location}</span>
             </div>
 

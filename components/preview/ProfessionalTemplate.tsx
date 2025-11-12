@@ -39,8 +39,14 @@ const renderSummaryList = (text: string) => {
 };
 
 const ProfessionalTemplate: React.FC<TemplateProps> = ({ data, settings }) => {
-    const { basics, summary, experience, education, skills, profiles, certifications, projects, languages, references } = data;
+    const { basics, summary, experience, education, skills, profiles, certifications, projects, languages, interests, references } = data;
     const { colors, typography } = settings;
+
+    const formatUrl = (url: string) => {
+        if (!url) return '';
+        if (url.startsWith('http://') || url.startsWith('https://')) return url;
+        return `https://${url}`;
+    };
 
      const sectionComponents: Record<ReorderableSectionKey, React.ReactNode> = {
         summary: summary ? <Section title="Summary"><p className="text-sm">{summary}</p></Section> : null,
@@ -48,7 +54,7 @@ const ProfessionalTemplate: React.FC<TemplateProps> = ({ data, settings }) => {
              <Section title="Profiles">
                 <div className="flex space-x-12">
                      {profiles.map(p => (
-                        <a href={p.url} key={p.id} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center text-gray-600 hover:text-black">
+                        <a href={formatUrl(p.url)} key={p.id} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center text-gray-600 hover:text-black">
                             {p.network === 'LinkedIn' && <LinkedInIcon />}
                             {p.network === 'GitHub' && <GitHubIcon />}
                             <span className="text-sm font-medium">{p.username}</span>
@@ -70,7 +76,7 @@ const ProfessionalTemplate: React.FC<TemplateProps> = ({ data, settings }) => {
                             <p className="italic">{exp.position}</p>
                             <p className="text-gray-600">{exp.location}</p>
                         </div>
-                        {exp.url && <a href={exp.url} className="text-xs text-blue-600 hover:underline"><WebsiteIcon />{exp.url}</a>}
+                        {exp.url && <a href={formatUrl(exp.url)} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline"><WebsiteIcon />{exp.url}</a>}
                         <ul className="text-sm mt-1 list-none">{renderSummaryList(exp.summary)}</ul>
                     </div>
                 ))}
@@ -100,6 +106,7 @@ const ProfessionalTemplate: React.FC<TemplateProps> = ({ data, settings }) => {
                             <h3 className="font-bold text-base">{proj.name}</h3>
                             <p className="text-sm font-semibold">{proj.role}</p>
                             <p className="text-sm text-gray-700">{proj.description}</p>
+                             {proj.url && <a href={formatUrl(proj.url)} target="_blank" rel="noopener noreferrer" className="block text-xs text-blue-600 hover:underline mt-1">{proj.url}</a>}
                         </div>
                     ))}
                 </div>
@@ -138,6 +145,11 @@ const ProfessionalTemplate: React.FC<TemplateProps> = ({ data, settings }) => {
                     {languages.map(lang => `${lang.language} (${lang.fluency})`).join(', ')}
                 </p>
              </Section>
+        ) : null,
+        interests: interests.length > 0 ? (
+            <Section title="Interests">
+                <p className="text-sm">{interests.map(i => i.name).join(', ')}</p>
+            </Section>
         ) : null,
         references: references ? (
              <Section title="References">
@@ -181,7 +193,7 @@ const ProfessionalTemplate: React.FC<TemplateProps> = ({ data, settings }) => {
                         <span className="mr-4"><LocationIcon />{basics.location}</span>
                         <span className="mr-4"><PhoneIcon />{basics.phone}</span>
                         <span className="mr-4"><EmailIcon />{basics.email}</span>
-                        <a href={basics.website} className="hover:underline"><WebsiteIcon />{basics.website}</a>
+                        <a href={formatUrl(basics.website)} target="_blank" rel="noopener noreferrer" className="hover:underline"><WebsiteIcon />{basics.website}</a>
                     </div>
                 </div>
             </header>

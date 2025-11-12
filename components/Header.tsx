@@ -1,3 +1,4 @@
+
 import React, { useRef } from 'react';
 import { ResumeData, CustomizationSettings, initialResumeData } from '../types';
 
@@ -67,6 +68,23 @@ const Header: React.FC<HeaderProps> = ({ resumeData, customization, onImport }) 
     event.target.value = ''; // Reset input to allow importing the same file again
   };
   
+  const getPdfOptions = () => {
+      const isLetter = customization.layout.pageFormat === 'Letter';
+      const paperSize = isLetter ? 'letter' : 'a4';
+      
+      const margins = customization.layout.margins;
+      // Convert margins from cm to mm for jsPDF
+      const margin_mm = [margins.top * 10, margins.left * 10, margins.bottom * 10, margins.right * 10];
+
+      return {
+        margin:       margin_mm,
+        filename:     `${resumeData.basics.name}_Resume.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'mm', format: paperSize, orientation: 'portrait' }
+      };
+  };
+
   const handlePrintPdf = () => {
       const element = document.getElementById('resume-preview');
       if (!element) {
@@ -75,25 +93,25 @@ const Header: React.FC<HeaderProps> = ({ resumeData, customization, onImport }) 
         return;
       }
 
-      const isLetter = customization.layout.pageFormat === 'Letter';
-      const paperSize = isLetter ? 'letter' : 'a4';
-      
-      const margins = customization.layout.margins;
-      // Convert margins from cm to mm for jsPDF
-      const margin_mm = [margins.top * 10, margins.left * 10, margins.bottom * 10, margins.right * 10];
-
-      const opt = {
-        margin:       margin_mm,
-        filename:     `${resumeData.basics.name}_Resume.pdf`,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, useCORS: true },
-        jsPDF:        { unit: 'mm', format: paperSize, orientation: 'portrait' }
-      };
-
+      const opt = getPdfOptions();
       // Use html2pdf to generate and save the PDF
       html2pdf().from(element).set(opt).save();
   };
 
+  const handlePreviewPdf = () => {
+      const element = document.getElementById('resume-preview');
+      if (!element) {
+        console.error("Resume preview element not found.");
+        alert("Could not find the resume preview.");
+        return;
+      }
+
+      const opt = getPdfOptions();
+      // Use html2pdf to generate the PDF and open in a new tab
+      html2pdf().from(element).set(opt).toPdf().get('pdf').then((pdf: any) => {
+          window.open(pdf.output('bloburl'), '_blank');
+      });
+  };
 
   return (
     <header className="bg-white dark:bg-gray-800 shadow-md p-4 flex justify-between items-center z-10">
@@ -119,6 +137,12 @@ const Header: React.FC<HeaderProps> = ({ resumeData, customization, onImport }) 
           className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600"
         >
           Export JSON
+        </button>
+        <button
+          onClick={handlePreviewPdf}
+           className="px-3 py-2 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-md shadow-sm hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-blue-300 dark:border-gray-600 dark:hover:bg-gray-600"
+        >
+          Preview
         </button>
         <button
           onClick={handlePrintPdf}

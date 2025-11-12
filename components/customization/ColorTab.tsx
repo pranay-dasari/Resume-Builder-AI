@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { CustomizationSettings } from '../../types';
+import { COLOR_PALETTES } from '../../constants';
 
 interface ColorTabProps {
   settings: CustomizationSettings;
@@ -27,10 +28,36 @@ const ColorTab: React.FC<ColorTabProps> = ({ settings, onUpdate }) => {
             }
         });
     }
+    
+    const handlePaletteSelect = (palette: { primary: string; text: string; background: string }) => {
+        onUpdate({
+            ...settings,
+            colors: {
+                primary: palette.primary,
+                text: palette.text,
+                background: palette.background,
+            }
+        });
+    };
 
   return (
     <div>
-      <h3 className="font-semibold mb-4">Color Customization</h3>
+      <h3 className="font-semibold mb-2">Color Palettes</h3>
+      <div className="grid grid-cols-3 gap-3 mb-6">
+        {COLOR_PALETTES.map((palette) => (
+          <div key={palette.name} onClick={() => handlePaletteSelect(palette)} className="cursor-pointer group" aria-label={`Select ${palette.name} color palette`}>
+            <div className="flex h-10 rounded-md overflow-hidden border border-gray-300 dark:border-gray-600 group-hover:scale-105 transition-transform duration-200">
+              <div style={{ backgroundColor: palette.primary }} className="w-2/5 h-full" title={`Primary: ${palette.primary}`}></div>
+              <div style={{ backgroundColor: palette.background }} className="w-3/5 h-full flex items-center justify-center" title={`Background: ${palette.background}`}>
+                  <div style={{ backgroundColor: palette.text }} className="w-5 h-5 rounded-full" title={`Text: ${palette.text}`}></div>
+              </div>
+            </div>
+            <p className="text-xs text-center mt-1 text-gray-600 dark:text-gray-400">{palette.name}</p>
+          </div>
+        ))}
+      </div>
+
+      <h3 className="font-semibold mb-4">Custom Colors</h3>
       <ColorInput label="Primary Color" value={settings.colors.primary} onChange={(val) => handleColorChange('primary', val)} />
       <ColorInput label="Text Color" value={settings.colors.text} onChange={(val) => handleColorChange('text', val)} />
       <ColorInput label="Background Color" value={settings.colors.background} onChange={(val) => handleColorChange('background', val)} />

@@ -52,6 +52,58 @@ const TemplateTab: React.FC<TemplateTabProps> = ({ settings, onUpdate }) => {
                         </div>
                     </>
                 )}
+                 {template.id === 'Creative' && (
+                    <div className="w-full h-full flex">
+                        <div className="w-1/3 h-full bg-blue-500 dark:bg-blue-700 p-2 flex flex-col items-center"> {/* Sidebar */}
+                            <div className="h-4 w-3/4 bg-white/90 rounded-sm mb-1"></div> {/* Name */}
+                            <div className="h-2 w-1/2 bg-white/70 rounded-sm mb-4"></div> {/* Headline */}
+                            <div className="h-2 w-2/3 bg-white/90 rounded-sm mb-2 self-start"></div> {/* Section Title */}
+                            <div className="h-1.5 w-5/6 bg-white/70 rounded-sm mb-1 self-start"></div>
+                            <div className="h-1.5 w-full bg-white/70 rounded-sm mb-1 self-start"></div>
+                        </div>
+                        <div className="w-2/3 h-full p-2"> {/* Main */}
+                            <div className="h-3 w-1/3 bg-gray-500 dark:bg-gray-400 rounded-sm mb-2"></div> {/* Section Title */}
+                            <div className="h-2 w-full bg-gray-400 dark:bg-gray-500 rounded-sm mb-1"></div>
+                            <div className="h-2 w-5/6 bg-gray-400 dark:bg-gray-500 rounded-sm mb-1"></div>
+                            <div className="h-2 w-full bg-gray-400 dark:bg-gray-500 rounded-sm"></div>
+                        </div>
+                    </div>
+                )}
+                {template.id === 'Elegant' && (
+                    <div className="w-full h-full flex">
+                        <div className="w-1/3 h-full bg-red-500 dark:bg-red-700 p-2 flex flex-col items-start"> {/* Sidebar */}
+                            <div className="w-10 h-10 bg-white/90 mb-4 self-center"></div> {/* Initials */}
+                            <div className="h-2 w-2/3 bg-white/90 rounded-sm mb-0.5"></div> {/* Label */}
+                            <div className="h-1.5 w-full bg-white/70 rounded-sm mb-2"></div> {/* Value */}
+                            <div className="h-2 w-2/3 bg-white/90 rounded-sm mb-0.5"></div> {/* Label */}
+                            <div className="h-1.5 w-full bg-white/70 rounded-sm mb-2"></div> {/* Value */}
+                        </div>
+                        <div className="w-2/3 h-full p-2"> {/* Main */}
+                            <div className="h-4 w-3/4 bg-gray-600 dark:bg-gray-400 rounded-sm mb-1"></div> {/* Name */}
+                            <div className="h-2 w-full bg-gray-400 dark:bg-gray-500 rounded-sm mb-3"></div> {/* Summary */}
+                            <div className="h-2 w-1/3 bg-gray-500 dark:bg-gray-400 rounded-sm mb-2"></div> {/* Section Title */}
+                            <div className="h-1.5 w-full bg-gray-400 dark:bg-gray-500 rounded-sm mb-1"></div>
+                            <div className="h-1.5 w-5/6 bg-gray-400 dark:bg-gray-500 rounded-sm"></div>
+                        </div>
+                    </div>
+                )}
+                {template.id === 'Corporate' && (
+                    <div className="w-full h-full flex">
+                        <div className="w-1/3 h-full bg-blue-800 dark:bg-blue-900 p-2 flex flex-col"> {/* Sidebar */}
+                            <div className="w-8 h-8 bg-blue-500 dark:bg-blue-700 mb-4 self-center"></div> {/* Initials */}
+                            <div className="h-2 w-1/2 bg-white/90 rounded-sm mb-2"></div> {/* Section Title */}
+                            <div className="h-1.5 w-full bg-white/70 rounded-sm mb-1"></div>
+                            <div className="h-1.5 w-3/4 bg-white/70 rounded-sm mb-1"></div>
+                        </div>
+                        <div className="w-2/3 h-full p-2"> {/* Main */}
+                            <div className="h-4 w-3/4 bg-gray-600 dark:bg-gray-400 rounded-sm mb-1"></div> {/* Name */}
+                            <div className="h-1.5 w-full bg-gray-400 dark:bg-gray-500 rounded-sm mb-1"></div>
+                            <div className="h-1.5 w-5/6 bg-gray-400 dark:bg-gray-500 rounded-sm mb-3"></div>
+                            <div className="h-2 w-1/3 bg-gray-500 dark:bg-gray-400 rounded-sm mb-2"></div> {/* Section Title */}
+                            <div className="h-1.5 w-full bg-gray-400 dark:bg-gray-500 rounded-sm mb-1"></div>
+                        </div>
+                    </div>
+                )}
                  {template.id === 'Default' && (
                     <div className="p-2 w-full">
                         <div className="h-5 w-1/2 bg-gray-700 dark:bg-gray-300 rounded-sm mb-1"></div> {/* Name */}
