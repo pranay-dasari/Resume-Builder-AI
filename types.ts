@@ -1,3 +1,4 @@
+
 import { FontStyle, FontWeight } from './constants';
 
 export interface Basics {
@@ -69,6 +70,13 @@ export interface Project {
 export interface Interest {
   id: string;
   name: string;
+}
+
+// FIX: Add User interface for Google Sign-In component
+export interface User {
+  name: string;
+  email: string;
+  picture: string;
 }
 
 // Keys for sections that can be reordered
@@ -219,10 +227,9 @@ export interface CustomizationSettings {
     primary: string;
     background: string;
     text: string;
+    sidebarText: string;
   };
   typography: {
-    fontFamily: string;
-    fontSize: number;
     lineHeight: number;
     headingFont: {
         family: string;
@@ -233,6 +240,14 @@ export interface CustomizationSettings {
         family: string;
         weight: FontWeight;
         style: FontStyle;
+    },
+    fontSizes: {
+        name: number;
+        headline: number;
+        sectionTitle: number;
+        subheading: number;
+        body: number;
+        meta: number;
     }
   };
   layout: {
@@ -252,10 +267,9 @@ export const initialCustomizationSettings: CustomizationSettings = {
         primary: '#374151', // gray-700
         background: '#ffffff',
         text: '#1f2937', // gray-800
+        sidebarText: '#ffffff',
     },
     typography: {
-        fontFamily: 'Lato', // A clean, professional default
-        fontSize: 10,
         lineHeight: 1.5,
         headingFont: {
             family: 'Lato',
@@ -266,6 +280,14 @@ export const initialCustomizationSettings: CustomizationSettings = {
             family: 'Roboto',
             weight: '400' as FontWeight,
             style: 'normal' as FontStyle,
+        },
+        fontSizes: {
+            name: 32,
+            headline: 14,
+            sectionTitle: 11,
+            subheading: 11,
+            body: 10,
+            meta: 9,
         }
     },
     layout: {

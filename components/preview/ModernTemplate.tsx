@@ -1,3 +1,5 @@
+
+
 import React from 'react';
 import { ResumeData, CustomizationSettings, ReorderableSectionKey } from '../../types';
 
@@ -6,16 +8,16 @@ interface ResumeTemplateProps {
     settings: CustomizationSettings;
 }
 
-const LeftSection: React.FC<{title: string; children: React.ReactNode}> = ({ title, children }) => (
+const LeftSection: React.FC<{title: string; fontSize: number; children: React.ReactNode; textColor: string}> = ({ title, fontSize, children, textColor }) => (
     <div className="mb-6" style={{ breakInside: 'avoid' }}>
-        <h3 className="text-sm font-bold uppercase tracking-wider mb-2" style={{color: 'rgba(255, 255, 255, 0.8)'}}>{title}</h3>
+        <h3 className="font-bold uppercase tracking-wider mb-2" style={{color: textColor, opacity: 0.8, fontSize: `${fontSize}pt`}}>{title}</h3>
         {children}
     </div>
 );
 
-const RightSection: React.FC<{title: string; primaryColor: string; children: React.ReactNode}> = ({ title, primaryColor, children }) => (
+const RightSection: React.FC<{title: string; primaryColor: string; fontSize: number; children: React.ReactNode}> = ({ title, primaryColor, fontSize, children }) => (
     <div className="mb-6" style={{ breakInside: 'avoid' }}>
-        <h2 className="text-lg font-bold uppercase tracking-wider text-gray-700 mb-4 pb-1 border-b-2" style={{ borderColor: primaryColor }}>{title}</h2>
+        <h2 className="font-bold uppercase tracking-wider text-gray-700 mb-4 pb-1 border-b-2" style={{ borderColor: primaryColor, fontSize: `${fontSize}pt` }}>{title}</h2>
         {children}
     </div>
 );
@@ -35,8 +37,13 @@ const ProfileIcon: React.FC<{network: string}> = ({ network }) => {
 
 const ModernTemplate: React.FC<ResumeTemplateProps> = ({ data, settings }) => {
     const { basics, summary, experience, education, skills, profiles, languages, certifications, projects, interests, references } = data;
-    const { colors, typography } = settings;
-    
+    const { colors, typography, layout } = settings;
+    const { fontSizes } = typography;
+    const sidebarTextColor = colors.sidebarText;
+
+    const isLetter = layout.pageFormat === 'Letter';
+    const pageMinHeight = isLetter ? '11in' : '297mm';
+
     type RenderContext = 'sidebar' | 'main';
 
     const formatUrl = (url: string) => {
@@ -58,22 +65,22 @@ const ModernTemplate: React.FC<ResumeTemplateProps> = ({ data, settings }) => {
         summary: {
             title: "Summary",
             isVisible: !!summary,
-            render: () => <p className="text-sm">{summary}</p>
+            render: () => <p style={{ fontSize: `${fontSizes.body}pt` }}>{summary}</p>
         },
         experience: {
             title: "Experience",
             isVisible: experience.length > 0,
             render: (context) => experience.map(exp => (
                 <div key={exp.id} className="mb-4 relative pl-5" style={{ breakInside: 'avoid' }}>
-                    <div className="absolute left-0 top-1.5 w-2.5 h-2.5 rounded-full border-2 bg-white" style={{ borderColor: context === 'main' ? colors.primary : 'white' }}></div>
-                    <div className="absolute left-[4.5px] top-1.5 w-px h-full" style={{ backgroundColor: context === 'main' ? colors.primary : 'white' }}></div>
+                    <div className="absolute left-0 top-1.5 w-2.5 h-2.5 rounded-full border-2 bg-white" style={{ borderColor: context === 'main' ? colors.primary : sidebarTextColor }}></div>
+                    <div className="absolute left-[4.5px] top-1.5 w-px h-full" style={{ backgroundColor: context === 'main' ? colors.primary : sidebarTextColor }}></div>
                     <div className="flex justify-between items-baseline">
-                        <h3 className="font-bold text-base">{exp.company}</h3>
-                        <p className={`text-xs font-semibold ${context === 'main' ? 'text-gray-500' : 'text-white opacity-80'}`}>{exp.startDate} - {exp.isCurrent ? 'Present' : exp.endDate}</p>
+                        <h3 className="font-bold" style={{ fontSize: `${fontSizes.subheading}pt` }}>{exp.company}</h3>
+                        <p className={`font-semibold ${context === 'main' ? 'text-gray-500' : 'opacity-80'}`} style={{ fontSize: `${fontSizes.meta}pt` }}>{exp.startDate} - {exp.isCurrent ? 'Present' : exp.endDate}</p>
                     </div>
-                    <p className="text-sm font-semibold" style={{color: context === 'main' ? colors.primary : 'white'}}>{exp.position}</p>
-                    <p className={`text-xs mb-1 ${context === 'main' ? 'text-gray-500' : 'text-white opacity-80'}`}>{exp.location}</p>
-                    <ul className="text-sm mt-1 list-disc pl-5">{renderSummaryList(exp.summary)}</ul>
+                    <p className="font-semibold" style={{color: context === 'main' ? colors.primary : sidebarTextColor, fontSize: `${fontSizes.subheading}pt`}}>{exp.position}</p>
+                    <p className={`mb-1 ${context === 'main' ? 'text-gray-500' : 'opacity-80'}`} style={{ fontSize: `${fontSizes.meta}pt` }}>{exp.location}</p>
+                    <ul className="mt-1 list-disc pl-5" style={{ fontSize: `${fontSizes.body}pt` }}>{renderSummaryList(exp.summary)}</ul>
                 </div>
             ))
         },
@@ -83,11 +90,11 @@ const ModernTemplate: React.FC<ResumeTemplateProps> = ({ data, settings }) => {
             render: (context) => education.map(edu => (
                 <div key={edu.id} className="mb-2" style={{ breakInside: 'avoid' }}>
                     <div className="flex justify-between items-baseline">
-                        <h3 className="font-bold text-base">{edu.institution}</h3>
-                        <p className={`text-xs font-semibold ${context === 'main' ? 'text-gray-500' : 'text-white opacity-80'}`}>{edu.startDate} - {edu.endDate}</p>
+                        <h3 className="font-bold" style={{ fontSize: `${fontSizes.subheading}pt` }}>{edu.institution}</h3>
+                        <p className={`font-semibold ${context === 'main' ? 'text-gray-500' : 'opacity-80'}`} style={{ fontSize: `${fontSizes.meta}pt` }}>{edu.startDate} - {edu.endDate}</p>
                     </div>
-                    <p className="text-sm">{edu.degree}</p>
-                    <p className={`text-xs ${context === 'main' ? 'text-gray-500' : 'text-white opacity-80'}`}>{edu.areaOfStudy}</p>
+                    <p style={{ fontSize: `${fontSizes.body}pt` }}>{edu.degree}</p>
+                    <p className={`${context === 'main' ? 'text-gray-500' : 'opacity-80'}`} style={{ fontSize: `${fontSizes.meta}pt` }}>{edu.areaOfStudy}</p>
                 </div>
             ))
         },
@@ -98,11 +105,11 @@ const ModernTemplate: React.FC<ResumeTemplateProps> = ({ data, settings }) => {
                 <div className={`grid grid-cols-1 ${context === 'main' ? 'md:grid-cols-2' : ''} gap-x-6 gap-y-2`}>
                     {projects.map(proj => (
                         <div key={proj.id} className="mb-2 relative pl-5" style={{ breakInside: 'avoid' }}>
-                            <div className="absolute left-0 top-1.5 w-2.5 h-2.5 rounded-full border-2 bg-white" style={{ borderColor: context === 'main' ? colors.primary : 'white' }}></div>
-                            <div className="absolute left-[4.5px] top-1.5 w-px h-full" style={{ backgroundColor: context === 'main' ? colors.primary : 'white' }}></div>
-                            <h3 className="font-bold text-base">{proj.name}</h3>
-                            <p className="text-sm font-semibold" style={{color: context === 'main' ? colors.primary : 'white'}}>{proj.role}</p>
-                            <p className="text-sm mt-1">{proj.description}</p>
+                            <div className="absolute left-0 top-1.5 w-2.5 h-2.5 rounded-full border-2 bg-white" style={{ borderColor: context === 'main' ? colors.primary : sidebarTextColor }}></div>
+                            <div className="absolute left-[4.5px] top-1.5 w-px h-full" style={{ backgroundColor: context === 'main' ? colors.primary : sidebarTextColor }}></div>
+                            <h3 className="font-bold" style={{ fontSize: `${fontSizes.subheading}pt` }}>{proj.name}</h3>
+                            <p className="font-semibold" style={{color: context === 'main' ? colors.primary : sidebarTextColor, fontSize: `${fontSizes.body}pt`}}>{proj.role}</p>
+                            <p className="mt-1" style={{ fontSize: `${fontSizes.body}pt` }}>{proj.description}</p>
                         </div>
                     ))}
                 </div>
@@ -112,7 +119,7 @@ const ModernTemplate: React.FC<ResumeTemplateProps> = ({ data, settings }) => {
             title: "Profiles",
             isVisible: profiles.length > 0,
             render: () => profiles.map(p => (
-                <a key={p.id} href={formatUrl(p.url)} target="_blank" rel="noopener noreferrer" className="flex items-center text-sm mb-1 hover:opacity-80 break-all">
+                <a key={p.id} href={formatUrl(p.url)} target="_blank" rel="noopener noreferrer" className="flex items-center mb-1 hover:opacity-80 break-all" style={{ fontSize: `${fontSizes.body}pt` }}>
                    <ProfileIcon network={p.network} />
                    <span>{p.username}</span>
                 </a>
@@ -122,9 +129,9 @@ const ModernTemplate: React.FC<ResumeTemplateProps> = ({ data, settings }) => {
             title: "Skills",
             isVisible: skills.length > 0,
             render: () => skills.map(skill => (
-                <div key={skill.id} className="mb-3 text-sm" style={{ breakInside: 'avoid' }}>
+                <div key={skill.id} className="mb-3" style={{ breakInside: 'avoid', fontSize: `${fontSizes.body}pt` }}>
                     <h4 className="font-bold">{skill.name}</h4>
-                    <p className="text-xs mt-1 font-light">{skill.keywords.join(', ')}</p>
+                    <p className="mt-1 font-light" style={{ fontSize: `${fontSizes.meta}pt` }}>{skill.keywords.join(', ')}</p>
                 </div>
             ))
         },
@@ -132,10 +139,10 @@ const ModernTemplate: React.FC<ResumeTemplateProps> = ({ data, settings }) => {
             title: "Certifications",
             isVisible: certifications.length > 0,
             render: () => certifications.map(cert => (
-                <div key={cert.id} className="mb-2 text-sm" style={{ breakInside: 'avoid' }}>
+                <div key={cert.id} className="mb-2" style={{ breakInside: 'avoid', fontSize: `${fontSizes.body}pt` }}>
                    <p className="font-bold">{cert.name}</p>
-                   <p className="text-xs font-light">{cert.issuer}</p>
-                   <p className="text-xs font-light">{cert.date}</p>
+                   <p className="font-light" style={{ fontSize: `${fontSizes.meta}pt` }}>{cert.issuer}</p>
+                   <p className="font-light" style={{ fontSize: `${fontSizes.meta}pt` }}>{cert.date}</p>
                 </div>
             ))
         },
@@ -143,7 +150,7 @@ const ModernTemplate: React.FC<ResumeTemplateProps> = ({ data, settings }) => {
             title: "Languages",
             isVisible: languages.length > 0,
             render: () => languages.map(lang => (
-                <div key={lang.id} className="mb-1 text-sm">
+                <div key={lang.id} className="mb-1" style={{ fontSize: `${fontSizes.body}pt` }}>
                    <span className="font-bold">{lang.language}: </span>
                    <span className="font-light">{lang.fluency}</span>
                 </div>
@@ -152,12 +159,12 @@ const ModernTemplate: React.FC<ResumeTemplateProps> = ({ data, settings }) => {
         interests: {
             title: "Interests",
             isVisible: interests.length > 0,
-            render: () => <p className="text-sm font-light">{interests.map(i => i.name).join(', ')}</p>
+            render: () => <p className="font-light" style={{ fontSize: `${fontSizes.body}pt` }}>{interests.map(i => i.name).join(', ')}</p>
         },
         references: {
             title: "References",
             isVisible: !!references,
-            render: () => <p className="text-sm font-light">{references}</p>
+            render: () => <p className="font-light" style={{ fontSize: `${fontSizes.body}pt` }}>{references}</p>
         }
     };
     
@@ -167,15 +174,16 @@ const ModernTemplate: React.FC<ResumeTemplateProps> = ({ data, settings }) => {
 
     return (
         <div
-            className="flex w-full h-full"
+            className="flex w-full"
             style={{
-                backgroundColor: colors.background,
+                backgroundColor: colors.primary,
                 color: colors.text,
                 fontFamily: `'${typography.bodyFont.family}', sans-serif`,
-                fontSize: `${typography.fontSize}pt`,
+                fontSize: `${typography.fontSizes.body}pt`,
                 lineHeight: typography.lineHeight,
                 fontWeight: typography.bodyFont.weight,
                 fontStyle: typography.bodyFont.style,
+                minHeight: pageMinHeight,
             }}
         >
             <style>
@@ -191,10 +199,10 @@ const ModernTemplate: React.FC<ResumeTemplateProps> = ({ data, settings }) => {
                 `}
             </style>
             {/* Left Column (Sidebar) */}
-            <div className="w-1/3 p-6" style={{ backgroundColor: colors.primary, color: 'white' }}>
+            <div className="w-1/3 p-6" style={{ color: sidebarTextColor }}>
                 {basics.photo && (
                     <div className="flex justify-center mb-6">
-                        <img src={basics.photo} alt={basics.name} className="w-32 h-32 rounded-full object-cover border-4 border-white" />
+                        <img src={basics.photo} alt={basics.name} className="w-32 h-32 rounded-full object-cover border-4" style={{borderColor: sidebarTextColor}} />
                     </div>
                 )}
                 
@@ -202,7 +210,7 @@ const ModernTemplate: React.FC<ResumeTemplateProps> = ({ data, settings }) => {
                     const section = sectionRenderers[key];
                     if (!section || !section.isVisible) return null;
                     return (
-                        <LeftSection key={key} title={section.title}>
+                        <LeftSection key={key} title={section.title} fontSize={fontSizes.sectionTitle} textColor={sidebarTextColor}>
                             {section.render('sidebar')}
                         </LeftSection>
                     );
@@ -210,12 +218,12 @@ const ModernTemplate: React.FC<ResumeTemplateProps> = ({ data, settings }) => {
             </div>
 
              {/* Right Column (Main) */}
-            <div className="w-2/3 p-8">
+            <div className="w-2/3 p-8" style={{ backgroundColor: colors.background }}>
                 <header className="mb-6">
-                    <h1 className="text-5xl font-bold text-gray-800">{basics.name}</h1>
-                    <p className="text-lg text-gray-600 mt-1">{basics.headline}</p>
+                    <h1 className="font-bold text-gray-800" style={{ fontSize: `${fontSizes.name}pt` }}>{basics.name}</h1>
+                    <p className="text-gray-600 mt-1" style={{ fontSize: `${fontSizes.headline}pt` }}>{basics.headline}</p>
                 </header>
-                 <div className="flex flex-wrap text-xs text-gray-500 items-center space-x-4 mb-8">
+                 <div className="flex flex-wrap text-gray-500 items-center space-x-4 mb-8" style={{ fontSize: `${fontSizes.meta}pt` }}>
                     <span>{basics.location}</span>
                     <span className="text-gray-300">&#9679;</span>
                     <span>{basics.phone}</span>
@@ -229,7 +237,7 @@ const ModernTemplate: React.FC<ResumeTemplateProps> = ({ data, settings }) => {
                     const section = sectionRenderers[key];
                     if (!section || !section.isVisible) return null;
                     return (
-                        <RightSection key={key} title={section.title} primaryColor={colors.primary}>
+                        <RightSection key={key} title={section.title} primaryColor={colors.primary} fontSize={fontSizes.sectionTitle}>
                             {section.render('main')}
                         </RightSection>
                     );

@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback } from 'react';
 import { ResumeData, CustomizationSettings, initialResumeData, initialCustomizationSettings } from './types';
 import EditorPanel from './components/editor/EditorPanel';

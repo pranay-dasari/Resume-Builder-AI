@@ -1,4 +1,5 @@
 
+
 import React, { useState } from 'react';
 import { CustomizationSettings } from '../../types';
 import TemplateTab from './TemplateTab';
@@ -11,12 +12,12 @@ interface CustomizationPanelProps {
   onUpdate: (settings: CustomizationSettings) => void;
 }
 
-type Tab = 'Templates' | 'Typography' | 'Layout';
+type Tab = 'Templates' | 'Font-Resize' | 'Layout';
 
 const CustomizationPanel: React.FC<CustomizationPanelProps> = ({ settings, onUpdate }) => {
   const [activeTab, setActiveTab] = useState<Tab>('Templates');
 
-  const tabs: Tab[] = ['Templates', 'Typography', 'Layout'];
+  const tabs: Tab[] = ['Templates', 'Font-Resize', 'Layout'];
 
   return (
     <div className="flex flex-col">
@@ -45,7 +46,7 @@ const CustomizationPanel: React.FC<CustomizationPanelProps> = ({ settings, onUpd
                 <ColorTab settings={settings} onUpdate={onUpdate} />
             </>
         )}
-        {activeTab === 'Typography' && <TypographyTab settings={settings} onUpdate={onUpdate} />}
+        {activeTab === 'Font-Resize' && <TypographyTab settings={settings} onUpdate={onUpdate} />}
         {activeTab === 'Layout' && <LayoutTab settings={settings} onUpdate={onUpdate} />}
       </div>
     </div>

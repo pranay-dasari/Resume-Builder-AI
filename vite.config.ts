@@ -18,18 +18,6 @@ export default defineConfig(({ mode }) => {
         alias: {
           '@': path.resolve(__dirname, '.'),
         }
-      },
-      build: {
-        outDir: 'dist',
-        emptyOutDir: true,
-        rollupOptions: {
-          input: 'index.html',
-          output: {
-            entryFileNames: '[name]-[hash].js',
-            chunkFileNames: '[name]-[hash].js',
-            assetFileNames: '[name]-[hash].[ext]'
-          }
-        }
       }
     };
 });

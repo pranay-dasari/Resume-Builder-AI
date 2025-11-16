@@ -28,35 +28,41 @@ export const COLOR_PALETTES = [
       primary: '#3b82f6', // blue-500
       text: '#1f2937',    // gray-800
       background: '#ffffff', // white
+      sidebarText: '#ffffff',
     },
     {
       name: 'Modern Green',
       primary: '#10b981', // emerald-500
       text: '#111827',    // gray-900
       background: '#f9fafb', // gray-50
+      sidebarText: '#ffffff',
     },
     {
       name: 'Elegant Gray',
       primary: '#6b7280', // gray-500
       text: '#1f2937',    // gray-800
       background: '#ffffff', // white
+      sidebarText: '#ffffff',
     },
     {
       name: 'Bold Crimson',
       primary: '#ef4444', // red-500
       text: '#1f2937',    // gray-800
       background: '#fef2f2', // red-50
+      sidebarText: '#ffffff',
     },
     {
       name: 'Creative Purple',
       primary: '#8b5cf6', // violet-500
       text: '#374151',    // gray-700
       background: '#f5f3ff', // violet-50
+      sidebarText: '#ffffff',
     },
     {
       name: 'Classic Navy',
       primary: '#1e3a8a', // blue-800
       text: '#111827',    // gray-900
       background: '#f3f4f6', // gray-100
+      sidebarText: '#ffffff',
     },
 ];

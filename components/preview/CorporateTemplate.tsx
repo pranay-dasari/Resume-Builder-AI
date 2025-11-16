@@ -1,3 +1,5 @@
+
+
 import React from 'react';
 import { ResumeData, CustomizationSettings, ReorderableSectionKey } from '../../types';
 
@@ -6,16 +8,16 @@ interface TemplateProps {
     settings: CustomizationSettings;
 }
 
-const LeftSection: React.FC<{title: string; children: React.ReactNode}> = ({ title, children }) => (
-    <div className="mb-4 text-sm" style={{ breakInside: 'avoid' }}>
-        <h2 className="text-xs font-bold uppercase tracking-wider mb-2 pb-1 text-white/90">{title}</h2>
+const LeftSection: React.FC<{title: string; fontSize: number; children: React.ReactNode; textColor: string}> = ({ title, fontSize, children, textColor }) => (
+    <div className="mb-4" style={{ breakInside: 'avoid' }}>
+        <h2 className="font-bold uppercase tracking-wider mb-2 pb-1" style={{color: textColor, opacity: 0.9, fontSize: `${fontSize}pt` }}>{title}</h2>
         {children}
     </div>
 );
 
-const RightSection: React.FC<{title: string; textColor: string; children: React.ReactNode}> = ({ title, textColor, children }) => (
+const RightSection: React.FC<{title: string; textColor: string; fontSize: number; children: React.ReactNode}> = ({ title, textColor, fontSize, children }) => (
     <div className="mb-6" style={{ breakInside: 'avoid' }}>
-        <h2 className="text-sm font-bold uppercase tracking-widest mb-3 pb-1.5" style={{ color: textColor, borderBottom: `1px solid ${textColor}33` }}>{title}</h2>
+        <h2 className="font-bold uppercase tracking-widest mb-3 pb-1.5" style={{ color: textColor, borderBottom: `1px solid ${textColor}33`, fontSize: `${fontSize}pt` }}>{title}</h2>
         {children}
     </div>
 );
@@ -36,7 +38,12 @@ const renderSummaryList = (text: string) => {
 
 const CorporateTemplate: React.FC<TemplateProps> = ({ data, settings }) => {
     const { basics, summary, experience, education, skills, profiles, languages, projects, certifications, interests, references } = data;
-    const { colors, typography } = settings;
+    const { colors, typography, layout } = settings;
+    const { fontSizes } = typography;
+    const sidebarTextColor = colors.sidebarText;
+
+    const isLetter = layout.pageFormat === 'Letter';
+    const pageMinHeight = isLetter ? '11in' : '297mm';
 
     const getInitials = (name: string) => {
         if (!name) return '';
@@ -48,49 +55,49 @@ const CorporateTemplate: React.FC<TemplateProps> = ({ data, settings }) => {
     };
     
     const sectionComponents: Record<ReorderableSectionKey, React.ReactNode> = {
-        summary: summary ? <p className="text-sm mb-6">{summary}</p> : null,
+        summary: summary ? <p className="mb-6" style={{ fontSize: `${fontSizes.body}pt` }}>{summary}</p> : null,
         experience: experience.length > 0 ? (
-            <RightSection title="Experience" textColor={colors.text}>
+            <RightSection title="Experience" textColor={colors.text} fontSize={fontSizes.sectionTitle}>
                 {experience.map(exp => (
-                    <div key={exp.id} className="mb-4 text-sm" style={{ breakInside: 'avoid' }}>
+                    <div key={exp.id} className="mb-4" style={{ breakInside: 'avoid', fontSize: `${fontSizes.body}pt` }}>
                         <div className="flex justify-between items-baseline">
                             <h3 className="font-bold">{exp.position} | {exp.company}</h3>
-                            <p className="text-xs text-gray-500">{exp.startDate} - {exp.isCurrent ? 'Present' : exp.endDate}</p>
+                            <p className="text-gray-500" style={{ fontSize: `${fontSizes.meta}pt` }}>{exp.startDate} - {exp.isCurrent ? 'Present' : exp.endDate}</p>
                         </div>
-                        <p className="text-xs text-gray-500 mb-1">{exp.location}</p>
+                        <p className="text-gray-500 mb-1" style={{ fontSize: `${fontSizes.meta}pt` }}>{exp.location}</p>
                         <div className="pl-2">{renderSummaryList(exp.summary)}</div>
                     </div>
                 ))}
             </RightSection>
         ) : null,
         education: education.length > 0 ? (
-            <LeftSection title="Education">
+            <LeftSection title="Education" fontSize={fontSizes.sectionTitle} textColor={sidebarTextColor}>
                 {education.map(edu => (
-                    <div key={edu.id} className="mb-3" style={{ breakInside: 'avoid' }}>
+                    <div key={edu.id} className="mb-3" style={{ breakInside: 'avoid', fontSize: `${fontSizes.body}pt` }}>
                         <h3 className="font-bold">{edu.institution}</h3>
                         <p>{edu.degree}</p>
-                        <p className="opacity-80 text-xs">{edu.areaOfStudy}</p>
-                        <p className="opacity-80 text-xs">{edu.startDate} - {edu.endDate}</p>
+                        <p className="opacity-80" style={{ fontSize: `${fontSizes.meta}pt` }}>{edu.areaOfStudy}</p>
+                        <p className="opacity-80" style={{ fontSize: `${fontSizes.meta}pt` }}>{edu.startDate} - {edu.endDate}</p>
                     </div>
                 ))}
             </LeftSection>
         ) : null,
         skills: skills.length > 0 ? (
-            <LeftSection title="Key Skills & Characteristics">
+            <LeftSection title="Key Skills & Characteristics" fontSize={fontSizes.sectionTitle} textColor={sidebarTextColor}>
                 {skills.map(skill => (
                     <div key={skill.id} className="mb-2" style={{ breakInside: 'avoid' }}>
-                        {skill.name && <h4 className="font-bold">{skill.name}</h4>}
-                        <p className="text-xs">{skill.keywords.join(', ')}</p>
+                        {skill.name && <h4 className="font-bold" style={{ fontSize: `${fontSizes.body}pt` }}>{skill.name}</h4>}
+                        <p style={{ fontSize: `${fontSizes.meta}pt` }}>{skill.keywords.join(', ')}</p>
                     </div>
                 ))}
             </LeftSection>
         ) : null,
         projects: projects.length > 0 ? (
-             <LeftSection title="Projects">
+             <LeftSection title="Projects" fontSize={fontSizes.sectionTitle} textColor={sidebarTextColor}>
                 {projects.map(proj => (
                     <div key={proj.id} className="mb-2" style={{ breakInside: 'avoid' }}>
-                        <h3 className="font-bold">{proj.name}</h3>
-                        <p className="text-xs opacity-80">{proj.role}</p>
+                        <h3 className="font-bold" style={{ fontSize: `${fontSizes.body}pt` }}>{proj.name}</h3>
+                        <p className="opacity-80" style={{ fontSize: `${fontSizes.meta}pt` }}>{proj.role}</p>
                     </div>
                 ))}
             </LeftSection>
@@ -100,8 +107,8 @@ const CorporateTemplate: React.FC<TemplateProps> = ({ data, settings }) => {
         languages: null,
         interests: null,
         references: references ? (
-             <RightSection title="References" textColor={colors.text}>
-                <p className="text-sm">{references}</p>
+             <RightSection title="References" textColor={colors.text} fontSize={fontSizes.sectionTitle}>
+                <p style={{ fontSize: `${fontSizes.body}pt` }}>{references}</p>
             </RightSection>
         ) : null,
     };
@@ -111,13 +118,15 @@ const CorporateTemplate: React.FC<TemplateProps> = ({ data, settings }) => {
     const column2Keys = templateLayout ? templateLayout.column2 : []; // Main
 
     return (
-        <div className="flex w-full h-full"
+        <div className="flex w-full"
              style={{
+                backgroundColor: colors.primary,
                 fontFamily: `'${typography.bodyFont.family}', sans-serif`,
-                fontSize: `${typography.fontSize}pt`,
+                fontSize: `${typography.fontSizes.body}pt`,
                 lineHeight: typography.lineHeight,
                 fontWeight: typography.bodyFont.weight,
                 fontStyle: typography.bodyFont.style,
+                minHeight: pageMinHeight,
             }}
         >
              <style>
@@ -131,16 +140,16 @@ const CorporateTemplate: React.FC<TemplateProps> = ({ data, settings }) => {
             </style>
             
             {/* Left Column (Sidebar) */}
-            <div className="w-[35%] p-6 text-white" style={{ backgroundColor: colors.primary }}>
-                 <div className="w-20 h-20 mb-6 flex items-center justify-center bg-white/20">
-                    <span className="text-3xl font-bold">{getInitials(basics.name)}</span>
+            <div className="w-[35%] p-6" style={{color: sidebarTextColor}}>
+                 <div className="w-20 h-20 mb-6 flex items-center justify-center" style={{ backgroundColor: `${sidebarTextColor}33`}}>
+                    <span className="font-bold" style={{ fontSize: `${fontSizes.name / 1.5}pt` }}>{getInitials(basics.name)}</span>
                 </div>
                 
-                <div className="space-y-3 text-xs mb-6">
-                    {basics.location && <div><h4 className="font-bold uppercase tracking-wider text-sm mb-0.5">Location</h4><p>{basics.location}</p></div>}
-                    {basics.phone && <div><h4 className="font-bold uppercase tracking-wider text-sm mb-0.5">Phone</h4><p>{basics.phone}</p></div>}
-                    {basics.email && <div><h4 className="font-bold uppercase tracking-wider text-sm mb-0.5">Email</h4><p className="break-all">{basics.email}</p></div>}
-                    {basics.website && <div><h4 className="font-bold uppercase tracking-wider text-sm mb-0.5">Website</h4><p className="break-all">{basics.website}</p></div>}
+                <div className="space-y-3 mb-6" style={{ fontSize: `${fontSizes.meta}pt` }}>
+                    {basics.location && <div><h4 className="font-bold uppercase tracking-wider mb-0.5" style={{ fontSize: `${fontSizes.sectionTitle}pt` }}>Location</h4><p>{basics.location}</p></div>}
+                    {basics.phone && <div><h4 className="font-bold uppercase tracking-wider mb-0.5" style={{ fontSize: `${fontSizes.sectionTitle}pt` }}>Phone</h4><p>{basics.phone}</p></div>}
+                    {basics.email && <div><h4 className="font-bold uppercase tracking-wider mb-0.5" style={{ fontSize: `${fontSizes.sectionTitle}pt` }}>Email</h4><p className="break-all">{basics.email}</p></div>}
+                    {basics.website && <div><h4 className="font-bold uppercase tracking-wider mb-0.5" style={{ fontSize: `${fontSizes.sectionTitle}pt` }}>Website</h4><p className="break-all">{basics.website}</p></div>}
                 </div>
 
                 {column1Keys.map(key => sectionComponents[key])}
@@ -148,8 +157,8 @@ const CorporateTemplate: React.FC<TemplateProps> = ({ data, settings }) => {
 
             {/* Right Column (Main) */}
             <div className="w-[65%] p-8" style={{ color: colors.text, backgroundColor: colors.background }}>
-                <h1 className="text-4xl font-bold tracking-wide" style={{ color: colors.text }}>{basics.name}</h1>
-                <p className="text-md text-gray-600 mb-6">{basics.headline}</p>
+                <h1 className="font-bold tracking-wide" style={{ color: colors.text, fontSize: `${fontSizes.name}pt` }}>{basics.name}</h1>
+                <p className="text-gray-600 mb-6" style={{ fontSize: `${fontSizes.headline}pt` }}>{basics.headline}</p>
 
                 {column2Keys.map(key => sectionComponents[key])}
             </div>

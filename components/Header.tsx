@@ -1,4 +1,3 @@
-
 import React, { useRef } from 'react';
 import { ResumeData, CustomizationSettings, initialResumeData } from '../types';
 
@@ -85,32 +84,65 @@ const Header: React.FC<HeaderProps> = ({ resumeData, customization, onImport }) 
       };
   };
 
-  const handlePrintPdf = () => {
-      const element = document.getElementById('resume-preview');
-      if (!element) {
-        console.error("Resume preview element not found.");
-        alert("Could not find the resume preview to download.");
-        return;
-      }
+  const performPdfAction = (action: 'save' | 'preview') => {
+    const originalElement = document.getElementById('resume-preview');
+    if (!originalElement) {
+      console.error("Resume preview element not found.");
+      alert("Could not find the resume preview to download.");
+      return;
+    }
+    
+    // Create a clone to render for PDF generation. This ensures the PDF is
+    // generated from an element with dimensions matching the paper size,
+    // providing a true WYSIWYG result regardless of screen size.
+    const elementToPrint = originalElement.cloneNode(true) as HTMLElement;
 
-      const opt = getPdfOptions();
-      // Use html2pdf to generate and save the PDF
-      html2pdf().from(element).set(opt).save();
+    // A container for the clone, positioned off-screen.
+    const printContainer = document.createElement('div');
+    printContainer.style.position = 'absolute';
+    printContainer.style.left = '-9999px';
+    printContainer.style.top = '0';
+    
+    // Set clone's dimensions to match paper size for 1:1 scaling.
+    const isLetter = customization.layout.pageFormat === 'Letter';
+    const paperWidth = isLetter ? '8.5in' : '210mm';
+    elementToPrint.style.width = paperWidth;
+    elementToPrint.style.height = 'auto';
+
+    printContainer.appendChild(elementToPrint);
+    document.body.appendChild(printContainer);
+
+    const opt = getPdfOptions();
+    // With a fixed-width source element, the 'scale' option now primarily
+    // affects the resolution (quality) of the PDF. Increasing it results
+    // in sharper text and images.
+    opt.html2canvas.scale = 3;
+
+    const worker = html2pdf().from(elementToPrint).set(opt);
+    
+    let promise;
+    if (action === 'save') {
+        promise = worker.save();
+    } else {
+        promise = worker.toPdf().get('pdf').then((pdf: any) => {
+            window.open(pdf.output('bloburl'), '_blank');
+        });
+    }
+
+    // Ensure the off-screen element is removed after the PDF operation is complete.
+    promise.catch((err: any) => {
+        console.error("PDF generation failed:", err);
+    }).finally(() => {
+        document.body.removeChild(printContainer);
+    });
+  };
+
+  const handlePrintPdf = () => {
+    performPdfAction('save');
   };
 
   const handlePreviewPdf = () => {
-      const element = document.getElementById('resume-preview');
-      if (!element) {
-        console.error("Resume preview element not found.");
-        alert("Could not find the resume preview.");
-        return;
-      }
-
-      const opt = getPdfOptions();
-      // Use html2pdf to generate the PDF and open in a new tab
-      html2pdf().from(element).set(opt).toPdf().get('pdf').then((pdf: any) => {
-          window.open(pdf.output('bloburl'), '_blank');
-      });
+    performPdfAction('preview');
   };
 
   return (
@@ -118,38 +150,40 @@ const Header: React.FC<HeaderProps> = ({ resumeData, customization, onImport }) 
       <h1 className="text-xl font-bold text-gray-800 dark:text-white">
         <span className="text-blue-500">AI</span> Resume Builder
       </h1>
-      <div className="flex items-center space-x-2">
-         <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleFileChange}
-          accept="application/json"
-          className="hidden"
-        />
-        <button
-          onClick={handleImportClick}
-          className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600"
-        >
-          Import JSON
-        </button>
-        <button
-          onClick={handleExportJson}
-          className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600"
-        >
-          Export JSON
-        </button>
-        <button
-          onClick={handlePreviewPdf}
-           className="px-3 py-2 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-md shadow-sm hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-blue-300 dark:border-gray-600 dark:hover:bg-gray-600"
-        >
-          Preview
-        </button>
-        <button
-          onClick={handlePrintPdf}
-          className="px-3 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-        >
-          Download PDF
-        </button>
+      <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2">
+            <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            accept="application/json"
+            className="hidden"
+            />
+            <button
+            onClick={handleImportClick}
+            className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600"
+            >
+            Import JSON
+            </button>
+            <button
+            onClick={handleExportJson}
+            className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600"
+            >
+            Export JSON
+            </button>
+            <button
+            onClick={handlePreviewPdf}
+            className="px-3 py-2 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-md shadow-sm hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-blue-300 dark:border-gray-600 dark:hover:bg-gray-600"
+            >
+            Preview
+            </button>
+            <button
+            onClick={handlePrintPdf}
+            className="px-3 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+            Download PDF
+            </button>
+        </div>
       </div>
     </header>
   );

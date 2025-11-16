@@ -29,13 +29,14 @@ const ColorTab: React.FC<ColorTabProps> = ({ settings, onUpdate }) => {
         });
     }
     
-    const handlePaletteSelect = (palette: { primary: string; text: string; background: string }) => {
+    const handlePaletteSelect = (palette: typeof COLOR_PALETTES[0]) => {
         onUpdate({
             ...settings,
             colors: {
                 primary: palette.primary,
                 text: palette.text,
                 background: palette.background,
+                sidebarText: palette.sidebarText,
             }
         });
     };
@@ -59,8 +60,9 @@ const ColorTab: React.FC<ColorTabProps> = ({ settings, onUpdate }) => {
 
       <h3 className="font-semibold mb-4">Custom Colors</h3>
       <ColorInput label="Primary Color" value={settings.colors.primary} onChange={(val) => handleColorChange('primary', val)} />
-      <ColorInput label="Text Color" value={settings.colors.text} onChange={(val) => handleColorChange('text', val)} />
       <ColorInput label="Background Color" value={settings.colors.background} onChange={(val) => handleColorChange('background', val)} />
+      <ColorInput label="Text Color" value={settings.colors.text} onChange={(val) => handleColorChange('text', val)} />
+      <ColorInput label="Sidebar Text Color" value={settings.colors.sidebarText} onChange={(val) => handleColorChange('sidebarText', val)} />
     </div>
   );
 };
