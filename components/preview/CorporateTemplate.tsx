@@ -8,14 +8,14 @@ interface TemplateProps {
     settings: CustomizationSettings;
 }
 
-const LeftSection: React.FC<{title: string; fontSize: number; children: React.ReactNode; textColor: string}> = ({ title, fontSize, children, textColor }) => (
+const LeftSection: React.FC<{ title: string; fontSize: number; children: React.ReactNode; textColor: string }> = ({ title, fontSize, children, textColor }) => (
     <div className="mb-4" style={{ breakInside: 'avoid' }}>
-        <h2 className="font-bold uppercase tracking-wider mb-2 pb-1" style={{color: textColor, opacity: 0.9, fontSize: `${fontSize}pt` }}>{title}</h2>
+        <h2 className="font-bold uppercase tracking-wider mb-2 pb-1" style={{ color: textColor, opacity: 0.9, fontSize: `${fontSize}pt` }}>{title}</h2>
         {children}
     </div>
 );
 
-const RightSection: React.FC<{title: string; textColor: string; fontSize: number; children: React.ReactNode}> = ({ title, textColor, fontSize, children }) => (
+const RightSection: React.FC<{ title: string; textColor: string; fontSize: number; children: React.ReactNode }> = ({ title, textColor, fontSize, children }) => (
     <div className="mb-6" style={{ breakInside: 'avoid' }}>
         <h2 className="font-bold uppercase tracking-widest mb-3 pb-1.5" style={{ color: textColor, borderBottom: `1px solid ${textColor}33`, fontSize: `${fontSize}pt` }}>{title}</h2>
         {children}
@@ -53,7 +53,7 @@ const CorporateTemplate: React.FC<TemplateProps> = ({ data, settings }) => {
         }
         return name.substring(0, 2).toUpperCase();
     };
-    
+
     const sectionComponents: Record<ReorderableSectionKey, React.ReactNode> = {
         summary: summary ? <p className="mb-6" style={{ fontSize: `${fontSizes.body}pt` }}>{summary}</p> : null,
         experience: experience.length > 0 ? (
@@ -61,7 +61,9 @@ const CorporateTemplate: React.FC<TemplateProps> = ({ data, settings }) => {
                 {experience.map(exp => (
                     <div key={exp.id} className="mb-4" style={{ breakInside: 'avoid', fontSize: `${fontSizes.body}pt` }}>
                         <div className="flex justify-between items-baseline">
-                            <h3 className="font-bold">{exp.position} | {exp.company}</h3>
+                            <h3 className="font-bold">
+                                {exp.project ? `${exp.project} - ${exp.position}` : exp.position} | {exp.company}
+                            </h3>
                             <p className="text-gray-500" style={{ fontSize: `${fontSizes.meta}pt` }}>{exp.startDate} - {exp.isCurrent ? 'Present' : exp.endDate}</p>
                         </div>
                         <p className="text-gray-500 mb-1" style={{ fontSize: `${fontSizes.meta}pt` }}>{exp.location}</p>
@@ -93,7 +95,7 @@ const CorporateTemplate: React.FC<TemplateProps> = ({ data, settings }) => {
             </LeftSection>
         ) : null,
         projects: projects.length > 0 ? (
-             <LeftSection title="Projects" fontSize={fontSizes.sectionTitle} textColor={sidebarTextColor}>
+            <LeftSection title="Projects" fontSize={fontSizes.sectionTitle} textColor={sidebarTextColor}>
                 {projects.map(proj => (
                     <div key={proj.id} className="mb-2" style={{ breakInside: 'avoid' }}>
                         <h3 className="font-bold" style={{ fontSize: `${fontSizes.body}pt` }}>{proj.name}</h3>
@@ -107,7 +109,7 @@ const CorporateTemplate: React.FC<TemplateProps> = ({ data, settings }) => {
         languages: null,
         interests: null,
         references: references ? (
-             <RightSection title="References" textColor={colors.text} fontSize={fontSizes.sectionTitle}>
+            <RightSection title="References" textColor={colors.text} fontSize={fontSizes.sectionTitle}>
                 <p style={{ fontSize: `${fontSizes.body}pt` }}>{references}</p>
             </RightSection>
         ) : null,
@@ -119,7 +121,7 @@ const CorporateTemplate: React.FC<TemplateProps> = ({ data, settings }) => {
 
     return (
         <div className="flex w-full"
-             style={{
+            style={{
                 backgroundColor: colors.primary,
                 fontFamily: `'${typography.bodyFont.family}', sans-serif`,
                 fontSize: `${typography.fontSizes.body}pt`,
@@ -129,7 +131,7 @@ const CorporateTemplate: React.FC<TemplateProps> = ({ data, settings }) => {
                 minHeight: pageMinHeight,
             }}
         >
-             <style>
+            <style>
                 {`
                     h1, h2, h3, h4, h5, h6, b, strong { 
                         font-family: '${typography.headingFont.family}', sans-serif;
@@ -138,13 +140,13 @@ const CorporateTemplate: React.FC<TemplateProps> = ({ data, settings }) => {
                     }
                 `}
             </style>
-            
+
             {/* Left Column (Sidebar) */}
-            <div className="w-[35%] p-6" style={{color: sidebarTextColor}}>
-                 <div className="w-20 h-20 mb-6 flex items-center justify-center" style={{ backgroundColor: `${sidebarTextColor}33`}}>
+            <div className="w-[35%] p-6" style={{ color: sidebarTextColor }}>
+                <div className="w-20 h-20 mb-6 flex items-center justify-center" style={{ backgroundColor: `${sidebarTextColor}33` }}>
                     <span className="font-bold" style={{ fontSize: `${fontSizes.name / 1.5}pt` }}>{getInitials(basics.name)}</span>
                 </div>
-                
+
                 <div className="space-y-3 mb-6" style={{ fontSize: `${fontSizes.meta}pt` }}>
                     {basics.location && <div><h4 className="font-bold uppercase tracking-wider mb-0.5" style={{ fontSize: `${fontSizes.sectionTitle}pt` }}>Location</h4><p>{basics.location}</p></div>}
                     {basics.phone && <div><h4 className="font-bold uppercase tracking-wider mb-0.5" style={{ fontSize: `${fontSizes.sectionTitle}pt` }}>Phone</h4><p>{basics.phone}</p></div>}

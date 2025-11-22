@@ -8,7 +8,7 @@ interface ResumeTemplateProps {
     settings: CustomizationSettings;
 }
 
-const Section: React.FC<{title: string; primaryColor: string; fontSize: number; children: React.ReactNode}> = ({ title, primaryColor, fontSize, children }) => (
+const Section: React.FC<{ title: string; primaryColor: string; fontSize: number; children: React.ReactNode }> = ({ title, primaryColor, fontSize, children }) => (
     <div className="mb-4" style={{ breakInside: 'avoid' }}>
         <h2 className="font-bold uppercase tracking-wider mb-2 pb-1 border-b-2" style={{ borderColor: primaryColor, color: primaryColor, fontSize: `${fontSize}pt` }}>
             {title}
@@ -40,7 +40,7 @@ const DefaultTemplate: React.FC<ResumeTemplateProps> = ({ data, settings }) => {
             return <p key={index} className="mb-1">{line}</p>;
         });
     };
-    
+
     const sectionComponents: Record<ReorderableSectionKey, React.ReactNode> = {
         summary: summary ? (
             <Section title="Summary" primaryColor={colors.primary} fontSize={fontSizes.sectionTitle}>
@@ -51,7 +51,9 @@ const DefaultTemplate: React.FC<ResumeTemplateProps> = ({ data, settings }) => {
             <Section title="Experience" primaryColor={colors.primary} fontSize={fontSizes.sectionTitle}>
                 {experience.map(exp => (
                     <div key={exp.id} className="mb-3" style={{ breakInside: 'avoid' }}>
-                        <h3 className="font-bold" style={{ fontSize: `${fontSizes.subheading}pt` }}>{exp.position}</h3>
+                        <h3 className="font-bold" style={{ fontSize: `${fontSizes.subheading}pt` }}>
+                            {exp.project ? `${exp.project} - ${exp.position}` : exp.position}
+                        </h3>
                         <div className="flex justify-between" style={{ fontSize: `${fontSizes.body}pt` }}>
                             <p className="font-semibold">{exp.company}</p>
                             <p className="italic" style={{ fontSize: `${fontSizes.meta}pt` }}>{exp.startDate} - {exp.isCurrent ? 'Present' : exp.endDate}</p>
@@ -62,7 +64,7 @@ const DefaultTemplate: React.FC<ResumeTemplateProps> = ({ data, settings }) => {
             </Section>
         ) : null,
         projects: projects.length > 0 ? (
-             <Section title="Projects" primaryColor={colors.primary} fontSize={fontSizes.sectionTitle}>
+            <Section title="Projects" primaryColor={colors.primary} fontSize={fontSizes.sectionTitle}>
                 {projects.map(proj => (
                     <div key={proj.id} className="mb-3" style={{ breakInside: 'avoid' }}>
                         <h3 className="font-bold" style={{ fontSize: `${fontSizes.subheading}pt` }}>{proj.name}</h3>
@@ -76,7 +78,7 @@ const DefaultTemplate: React.FC<ResumeTemplateProps> = ({ data, settings }) => {
         profiles: profiles.length > 0 ? (
             <Section title="Profiles" primaryColor={colors.primary} fontSize={fontSizes.sectionTitle}>
                 {profiles.map(p => (
-                    <a key={p.id} href={formatUrl(p.url)} target="_blank" rel="noopener noreferrer" className="block hover:underline" style={{color: sidebarTextColor, fontSize: `${fontSizes.body}pt`}}>{p.network}: {p.username}</a>
+                    <a key={p.id} href={formatUrl(p.url)} target="_blank" rel="noopener noreferrer" className="block hover:underline" style={{ color: sidebarTextColor, fontSize: `${fontSizes.body}pt` }}>{p.network}: {p.username}</a>
                 ))}
             </Section>
         ) : null,
@@ -103,15 +105,15 @@ const DefaultTemplate: React.FC<ResumeTemplateProps> = ({ data, settings }) => {
         ) : null,
         languages: languages.length > 0 ? (
             <Section title="Languages" primaryColor={colors.primary} fontSize={fontSizes.sectionTitle}>
-                 {languages.map(lang => (
-                     <p key={lang.id} style={{ fontSize: `${fontSizes.body}pt` }}>{lang.language} ({lang.fluency})</p>
-                 ))}
+                {languages.map(lang => (
+                    <p key={lang.id} style={{ fontSize: `${fontSizes.body}pt` }}>{lang.language} ({lang.fluency})</p>
+                ))}
             </Section>
         ) : null,
         certifications: certifications.length > 0 ? (
             <Section title="Certifications" primaryColor={colors.primary} fontSize={fontSizes.sectionTitle}>
                 {certifications.map(c => (
-                     <div key={c.id} className="mb-1" style={{ breakInside: 'avoid', fontSize: `${fontSizes.body}pt` }}>
+                    <div key={c.id} className="mb-1" style={{ breakInside: 'avoid', fontSize: `${fontSizes.body}pt` }}>
                         <p className="font-semibold">{c.name}</p>
                         <p style={{ fontSize: `${fontSizes.meta}pt` }}>{c.issuer} ({c.date})</p>
                     </div>
@@ -127,7 +129,7 @@ const DefaultTemplate: React.FC<ResumeTemplateProps> = ({ data, settings }) => {
             <Section title="References" primaryColor={colors.primary} fontSize={fontSizes.sectionTitle}>
                 <p style={{ fontSize: `${fontSizes.body}pt` }}>{references}</p>
             </Section>
-        ): null,
+        ) : null,
     };
 
     const templateLayout = data.layout[settings.template];
@@ -176,7 +178,7 @@ const DefaultTemplate: React.FC<ResumeTemplateProps> = ({ data, settings }) => {
                     }
                 `}
             </style>
-            
+
             <div style={{ backgroundColor: colors.background }} className="p-8">
                 <header className="flex items-center justify-between mb-6">
                     <div>
@@ -185,7 +187,7 @@ const DefaultTemplate: React.FC<ResumeTemplateProps> = ({ data, settings }) => {
                     </div>
                     {basics.photo && <img src={basics.photo} alt={basics.name} className="w-24 h-24 rounded-full object-cover" />}
                 </header>
-                
+
                 <div className="mb-6 flex flex-wrap justify-between items-center border-y py-2" style={{ borderColor: colors.primary + '33', fontSize: `${fontSizes.meta}pt` }}>
                     <span>{basics.email}</span>
                     <span>{basics.phone}</span>
@@ -196,11 +198,11 @@ const DefaultTemplate: React.FC<ResumeTemplateProps> = ({ data, settings }) => {
 
             <div className="flex">
                 <div className="w-2/3 p-8 pt-0" style={{ backgroundColor: colors.background }}>
-                   {column1Keys.map(key => sectionComponents[key])}
+                    {column1Keys.map(key => sectionComponents[key])}
                 </div>
 
                 <div className="w-1/3 p-8 pt-0 sidebar-column">
-                   {column2Keys.map(key => sectionComponents[key])}
+                    {column2Keys.map(key => sectionComponents[key])}
                 </div>
             </div>
         </div>

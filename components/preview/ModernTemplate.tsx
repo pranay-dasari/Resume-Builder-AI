@@ -8,21 +8,21 @@ interface ResumeTemplateProps {
     settings: CustomizationSettings;
 }
 
-const LeftSection: React.FC<{title: string; fontSize: number; children: React.ReactNode; textColor: string}> = ({ title, fontSize, children, textColor }) => (
+const LeftSection: React.FC<{ title: string; fontSize: number; children: React.ReactNode; textColor: string }> = ({ title, fontSize, children, textColor }) => (
     <div className="mb-6" style={{ breakInside: 'avoid' }}>
-        <h3 className="font-bold uppercase tracking-wider mb-2" style={{color: textColor, opacity: 0.8, fontSize: `${fontSize}pt`}}>{title}</h3>
+        <h3 className="font-bold uppercase tracking-wider mb-2" style={{ color: textColor, opacity: 0.8, fontSize: `${fontSize}pt` }}>{title}</h3>
         {children}
     </div>
 );
 
-const RightSection: React.FC<{title: string; primaryColor: string; fontSize: number; children: React.ReactNode}> = ({ title, primaryColor, fontSize, children }) => (
+const RightSection: React.FC<{ title: string; primaryColor: string; fontSize: number; children: React.ReactNode }> = ({ title, primaryColor, fontSize, children }) => (
     <div className="mb-6" style={{ breakInside: 'avoid' }}>
         <h2 className="font-bold uppercase tracking-wider text-gray-700 mb-4 pb-1 border-b-2" style={{ borderColor: primaryColor, fontSize: `${fontSize}pt` }}>{title}</h2>
         {children}
     </div>
 );
 
-const ProfileIcon: React.FC<{network: string}> = ({ network }) => {
+const ProfileIcon: React.FC<{ network: string }> = ({ network }) => {
     switch (network.toLowerCase()) {
         case 'linkedin':
             return <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 mr-2 flex-shrink-0"><path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 118.25 6.5 1.75 1.75 0 016.5 8.25zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.62 1.62 0 0013 14.19V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66z"></path></svg>;
@@ -78,7 +78,9 @@ const ModernTemplate: React.FC<ResumeTemplateProps> = ({ data, settings }) => {
                         <h3 className="font-bold" style={{ fontSize: `${fontSizes.subheading}pt` }}>{exp.company}</h3>
                         <p className={`font-semibold ${context === 'main' ? 'text-gray-500' : 'opacity-80'}`} style={{ fontSize: `${fontSizes.meta}pt` }}>{exp.startDate} - {exp.isCurrent ? 'Present' : exp.endDate}</p>
                     </div>
-                    <p className="font-semibold" style={{color: context === 'main' ? colors.primary : sidebarTextColor, fontSize: `${fontSizes.subheading}pt`}}>{exp.position}</p>
+                    <p className="font-semibold" style={{ color: context === 'main' ? colors.primary : sidebarTextColor, fontSize: `${fontSizes.subheading}pt` }}>
+                        {exp.project ? `${exp.project} - ${exp.position}` : exp.position}
+                    </p>
                     <p className={`mb-1 ${context === 'main' ? 'text-gray-500' : 'opacity-80'}`} style={{ fontSize: `${fontSizes.meta}pt` }}>{exp.location}</p>
                     <ul className="mt-1 list-disc pl-5" style={{ fontSize: `${fontSizes.body}pt` }}>{renderSummaryList(exp.summary)}</ul>
                 </div>
@@ -108,7 +110,7 @@ const ModernTemplate: React.FC<ResumeTemplateProps> = ({ data, settings }) => {
                             <div className="absolute left-0 top-1.5 w-2.5 h-2.5 rounded-full border-2 bg-white" style={{ borderColor: context === 'main' ? colors.primary : sidebarTextColor }}></div>
                             <div className="absolute left-[4.5px] top-1.5 w-px h-full" style={{ backgroundColor: context === 'main' ? colors.primary : sidebarTextColor }}></div>
                             <h3 className="font-bold" style={{ fontSize: `${fontSizes.subheading}pt` }}>{proj.name}</h3>
-                            <p className="font-semibold" style={{color: context === 'main' ? colors.primary : sidebarTextColor, fontSize: `${fontSizes.body}pt`}}>{proj.role}</p>
+                            <p className="font-semibold" style={{ color: context === 'main' ? colors.primary : sidebarTextColor, fontSize: `${fontSizes.body}pt` }}>{proj.role}</p>
                             <p className="mt-1" style={{ fontSize: `${fontSizes.body}pt` }}>{proj.description}</p>
                         </div>
                     ))}
@@ -120,8 +122,8 @@ const ModernTemplate: React.FC<ResumeTemplateProps> = ({ data, settings }) => {
             isVisible: profiles.length > 0,
             render: () => profiles.map(p => (
                 <a key={p.id} href={formatUrl(p.url)} target="_blank" rel="noopener noreferrer" className="flex items-center mb-1 hover:opacity-80 break-all" style={{ fontSize: `${fontSizes.body}pt` }}>
-                   <ProfileIcon network={p.network} />
-                   <span>{p.username}</span>
+                    <ProfileIcon network={p.network} />
+                    <span>{p.username}</span>
                 </a>
             ))
         },
@@ -140,9 +142,9 @@ const ModernTemplate: React.FC<ResumeTemplateProps> = ({ data, settings }) => {
             isVisible: certifications.length > 0,
             render: () => certifications.map(cert => (
                 <div key={cert.id} className="mb-2" style={{ breakInside: 'avoid', fontSize: `${fontSizes.body}pt` }}>
-                   <p className="font-bold">{cert.name}</p>
-                   <p className="font-light" style={{ fontSize: `${fontSizes.meta}pt` }}>{cert.issuer}</p>
-                   <p className="font-light" style={{ fontSize: `${fontSizes.meta}pt` }}>{cert.date}</p>
+                    <p className="font-bold">{cert.name}</p>
+                    <p className="font-light" style={{ fontSize: `${fontSizes.meta}pt` }}>{cert.issuer}</p>
+                    <p className="font-light" style={{ fontSize: `${fontSizes.meta}pt` }}>{cert.date}</p>
                 </div>
             ))
         },
@@ -151,8 +153,8 @@ const ModernTemplate: React.FC<ResumeTemplateProps> = ({ data, settings }) => {
             isVisible: languages.length > 0,
             render: () => languages.map(lang => (
                 <div key={lang.id} className="mb-1" style={{ fontSize: `${fontSizes.body}pt` }}>
-                   <span className="font-bold">{lang.language}: </span>
-                   <span className="font-light">{lang.fluency}</span>
+                    <span className="font-bold">{lang.language}: </span>
+                    <span className="font-light">{lang.fluency}</span>
                 </div>
             ))
         },
@@ -167,7 +169,7 @@ const ModernTemplate: React.FC<ResumeTemplateProps> = ({ data, settings }) => {
             render: () => <p className="font-light" style={{ fontSize: `${fontSizes.body}pt` }}>{references}</p>
         }
     };
-    
+
     const templateLayout = data.layout[settings.template];
     const column1Keys = templateLayout ? templateLayout.column1 : []; // Right column (main)
     const column2Keys = templateLayout ? templateLayout.column2 : []; // Left column (sidebar)
@@ -202,10 +204,10 @@ const ModernTemplate: React.FC<ResumeTemplateProps> = ({ data, settings }) => {
             <div className="w-1/3 p-6" style={{ color: sidebarTextColor }}>
                 {basics.photo && (
                     <div className="flex justify-center mb-6">
-                        <img src={basics.photo} alt={basics.name} className="w-32 h-32 rounded-full object-cover border-4" style={{borderColor: sidebarTextColor}} />
+                        <img src={basics.photo} alt={basics.name} className="w-32 h-32 rounded-full object-cover border-4" style={{ borderColor: sidebarTextColor }} />
                     </div>
                 )}
-                
+
                 {column2Keys.map(key => {
                     const section = sectionRenderers[key];
                     if (!section || !section.isVisible) return null;
@@ -217,22 +219,22 @@ const ModernTemplate: React.FC<ResumeTemplateProps> = ({ data, settings }) => {
                 })}
             </div>
 
-             {/* Right Column (Main) */}
+            {/* Right Column (Main) */}
             <div className="w-2/3 p-8" style={{ backgroundColor: colors.background }}>
                 <header className="mb-6">
                     <h1 className="font-bold text-gray-800" style={{ fontSize: `${fontSizes.name}pt` }}>{basics.name}</h1>
                     <p className="text-gray-600 mt-1" style={{ fontSize: `${fontSizes.headline}pt` }}>{basics.headline}</p>
                 </header>
-                 <div className="flex flex-wrap text-gray-500 items-center space-x-4 mb-8" style={{ fontSize: `${fontSizes.meta}pt` }}>
+                <div className="flex flex-wrap text-gray-500 items-center space-x-4 mb-8" style={{ fontSize: `${fontSizes.meta}pt` }}>
                     <span>{basics.location}</span>
                     <span className="text-gray-300">&#9679;</span>
                     <span>{basics.phone}</span>
-                     <span className="text-gray-300">&#9679;</span>
+                    <span className="text-gray-300">&#9679;</span>
                     <span>{basics.email}</span>
-                     <span className="text-gray-300">&#9679;</span>
-                     <a href={formatUrl(basics.website)} target="_blank" rel="noopener noreferrer" className="hover:underline">{basics.website}</a>
+                    <span className="text-gray-300">&#9679;</span>
+                    <a href={formatUrl(basics.website)} target="_blank" rel="noopener noreferrer" className="hover:underline">{basics.website}</a>
                 </div>
-                
+
                 {column1Keys.map(key => {
                     const section = sectionRenderers[key];
                     if (!section || !section.isVisible) return null;

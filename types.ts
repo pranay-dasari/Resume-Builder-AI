@@ -21,6 +21,7 @@ export interface Profile {
 export interface WorkExperience {
   id: string;
   company: string;
+  project?: string;
   position: string;
   location: string;
   url?: string;

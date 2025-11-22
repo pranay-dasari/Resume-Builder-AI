@@ -8,14 +8,14 @@ interface TemplateProps {
     settings: CustomizationSettings;
 }
 
-const LeftSection: React.FC<{title: string; fontSize: number; children: React.ReactNode; textColor: string}> = ({ title, fontSize, children, textColor }) => (
+const LeftSection: React.FC<{ title: string; fontSize: number; children: React.ReactNode; textColor: string }> = ({ title, fontSize, children, textColor }) => (
     <div className="mb-4" style={{ breakInside: 'avoid' }}>
         <h2 className="font-bold uppercase tracking-wider mb-2 pb-1" style={{ color: textColor, opacity: 0.9, fontSize: `${fontSize}pt` }}>{title}</h2>
         {children}
     </div>
 );
 
-const RightSection: React.FC<{title: string; textColor: string; fontSize: number; children: React.ReactNode}> = ({ title, textColor, fontSize, children }) => (
+const RightSection: React.FC<{ title: string; textColor: string; fontSize: number; children: React.ReactNode }> = ({ title, textColor, fontSize, children }) => (
     <div className="mb-6" style={{ breakInside: 'avoid' }}>
         <h2 className="font-bold uppercase tracking-wider mb-3 pb-1" style={{ color: textColor, borderBottom: `1px solid ${textColor}`, fontSize: `${fontSize}pt` }}>{title}</h2>
         {children}
@@ -53,7 +53,7 @@ const ElegantTemplate: React.FC<TemplateProps> = ({ data, settings }) => {
         }
         return name.substring(0, 2).toUpperCase();
     };
-    
+
     type RenderContext = 'sidebar' | 'main';
 
     const sectionRenderers: Record<ReorderableSectionKey, { title: string; isVisible: boolean; render: (context: RenderContext) => React.ReactNode; }> = {
@@ -68,7 +68,9 @@ const ElegantTemplate: React.FC<TemplateProps> = ({ data, settings }) => {
             render: () => experience.map(exp => (
                 <div key={exp.id} className="mb-4" style={{ breakInside: 'avoid', fontSize: `${fontSizes.body}pt` }}>
                     <div className="flex justify-between items-baseline">
-                        <h3 className="font-bold">{exp.position} | {exp.company}</h3>
+                        <h3 className="font-bold">
+                            {exp.project ? `${exp.project} - ${exp.position}` : exp.position} | {exp.company}
+                        </h3>
                         <p className="text-gray-600" style={{ fontSize: `${fontSizes.meta}pt` }}>{exp.location}</p>
                     </div>
                     <p className="text-gray-500 mb-1" style={{ fontSize: `${fontSizes.meta}pt` }}>{exp.startDate} - {exp.isCurrent ? 'Present' : exp.endDate}</p>
@@ -100,7 +102,7 @@ const ElegantTemplate: React.FC<TemplateProps> = ({ data, settings }) => {
                 return (
                     <ul className="list-none columns-2" style={{ fontSize: `${fontSizes.body}pt` }}>
                         {keywords.map((keyword, index) => (
-                             <li key={index} className="relative pl-5 mb-1" style={{ breakInside: 'avoid' }}>
+                            <li key={index} className="relative pl-5 mb-1" style={{ breakInside: 'avoid' }}>
                                 <span className="absolute left-1 top-2 w-1.5 h-1.5 rounded-full" style={{ backgroundColor: colors.text }}></span>
                                 {keyword}
                             </li>
@@ -131,7 +133,7 @@ const ElegantTemplate: React.FC<TemplateProps> = ({ data, settings }) => {
             title: "Certifications",
             isVisible: certifications.length > 0,
             render: () => certifications.map(c => (
-                 <div key={c.id} className="mb-2" style={{ breakInside: 'avoid', fontSize: `${fontSizes.meta}pt` }}>
+                <div key={c.id} className="mb-2" style={{ breakInside: 'avoid', fontSize: `${fontSizes.meta}pt` }}>
                     <p className="font-semibold">{c.name}</p>
                     <p className="opacity-80">{c.issuer} ({c.date})</p>
                 </div>
@@ -141,8 +143,8 @@ const ElegantTemplate: React.FC<TemplateProps> = ({ data, settings }) => {
             title: "Languages",
             isVisible: languages.length > 0,
             render: () => languages.map(lang => (
-                 <p key={lang.id} style={{ fontSize: `${fontSizes.meta}pt` }}>{lang.language} ({lang.fluency})</p>
-             ))
+                <p key={lang.id} style={{ fontSize: `${fontSizes.meta}pt` }}>{lang.language} ({lang.fluency})</p>
+            ))
         },
         interests: {
             title: "Interests",
@@ -162,7 +164,7 @@ const ElegantTemplate: React.FC<TemplateProps> = ({ data, settings }) => {
 
     return (
         <div className="flex w-full"
-             style={{
+            style={{
                 backgroundColor: colors.primary,
                 fontFamily: `'${typography.bodyFont.family}', sans-serif`,
                 fontSize: `${typography.fontSizes.body}pt`,
@@ -172,7 +174,7 @@ const ElegantTemplate: React.FC<TemplateProps> = ({ data, settings }) => {
                 minHeight: pageMinHeight,
             }}
         >
-             <style>
+            <style>
                 {`
                     h1, h2, h3, h4, h5, h6, b, strong { 
                         font-family: '${typography.headingFont.family}', sans-serif;
@@ -183,11 +185,11 @@ const ElegantTemplate: React.FC<TemplateProps> = ({ data, settings }) => {
             </style>
 
             {/* Left Column */}
-            <div className="w-[30%] p-6" style={{color: sidebarTextColor}}>
+            <div className="w-[30%] p-6" style={{ color: sidebarTextColor }}>
                 <div className="w-24 h-24 mb-8 flex items-center justify-center" style={{ backgroundColor: colors.background }}>
                     <span className="font-bold" style={{ color: colors.primary, fontSize: `${fontSizes.name / 1.5}pt` }}>{getInitials(basics.name)}</span>
                 </div>
-                
+
                 <div className="space-y-4 mb-6" style={{ fontSize: `${fontSizes.meta}pt` }}>
                     {basics.location && <div><h4 className="font-bold uppercase tracking-wider mb-1" style={{ fontSize: `${fontSizes.sectionTitle}pt` }}>Location</h4><p>{basics.location}</p></div>}
                     {basics.phone && <div><h4 className="font-bold uppercase tracking-wider mb-1" style={{ fontSize: `${fontSizes.sectionTitle}pt` }}>Phone</h4><p>{basics.phone}</p></div>}
@@ -195,7 +197,7 @@ const ElegantTemplate: React.FC<TemplateProps> = ({ data, settings }) => {
                     {basics.website && <div><h4 className="font-bold uppercase tracking-wider mb-1" style={{ fontSize: `${fontSizes.sectionTitle}pt` }}>Website</h4><p className="break-all">{basics.website}</p></div>}
                 </div>
 
-                 {column1Keys.map(key => {
+                {column1Keys.map(key => {
                     const section = sectionRenderers[key];
                     if (!section || !section.isVisible) return null;
                     return (
@@ -205,11 +207,11 @@ const ElegantTemplate: React.FC<TemplateProps> = ({ data, settings }) => {
                     );
                 })}
             </div>
-            
+
             {/* Right Column */}
             <div className="w-[70%] p-8" style={{ color: colors.text, backgroundColor: colors.background }}>
                 <h1 className="font-bold" style={{ color: colors.text, fontSize: `${fontSizes.name}pt` }}>{basics.name}</h1>
-                
+
                 {column2Keys.map(key => {
                     const section = sectionRenderers[key];
                     if (!section || !section.isVisible) return null;
@@ -220,9 +222,9 @@ const ElegantTemplate: React.FC<TemplateProps> = ({ data, settings }) => {
                 })}
 
                 {column2Keys.map(key => {
-                     const section = sectionRenderers[key];
-                     if (!section || !section.isVisible || key === 'summary') return null;
-                     return (
+                    const section = sectionRenderers[key];
+                    if (!section || !section.isVisible || key === 'summary') return null;
+                    return (
                         <RightSection key={key} title={section.title} textColor={colors.text} fontSize={fontSizes.sectionTitle}>
                             {section.render('main')}
                         </RightSection>
