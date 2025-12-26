@@ -1,0 +1,146 @@
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import { OpenRouter } from '@openrouter/sdk';
+import { GoogleGenAI } from '@google/genai';
+
+// Load environment variables
+dotenv.config();
+
+const app = express();
+const PORT = process.env.PORT || 3001;
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// Initialize AI clients with server-side API keys
+const openRouterClient = new OpenRouter({
+  apiKey: process.env.OPENROUTER_API_KEY,
+});
+
+const geminiClient = new GoogleGenAI({ 
+  apiKey: process.env.API_KEY || process.env.GEMINI_API_KEY 
+});
+
+// AI generation endpoint
+app.post('/api/ai', async (req, res) => {
+  console.log('📨 Received AI request:', { 
+    hasPrompt: !!req.body.prompt, 
+    type: req.body.type,
+    promptLength: req.body.prompt?.length 
+  });
+
+  try {
+    const { 
+      prompt, 
+      systemMessage = "You are a professional resume writer. Output ONLY the enhanced polished professional text. No explanations, no additional commentary.",
+      temperature = 0.4,
+      maxTokens = 300,
+      type
+    } = req.body;
+
+    if (!prompt) {
+      console.error('❌ No prompt provided');
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Prompt is required' 
+      });
+    }
+
+    // Check API key configuration
+    if (!process.env.OPENROUTER_API_KEY && !process.env.API_KEY && !process.env.GEMINI_API_KEY) {
+      console.error('❌ No API keys configured');
+      return res.status(500).json({
+        success: false,
+        error: 'No AI providers configured. Please check your environment variables.'
+      });
+    }
+
+    let result;
+    let usedProvider = 'openrouter';
+
+    // Try OpenRouter first
+    try {
+      console.log('🚀 Trying OpenRouter...');
+      
+      const response = await openRouterClient.chat.send({
+        model: "nex-agi/deepseek-v3.1-nex-n1:free",
+        messages: [
+          { role: "system", content: systemMessage },
+          { role: "user", content: prompt }
+        ],
+        temperature,
+        max_tokens: maxTokens,
+        stream: false // We want the complete response, not streaming
+      });
+
+      const content = response.choices[0]?.message?.content;
+      if (!content) {
+        throw new Error("No content received from OpenRouter");
+      }
+
+      result = content.trim();
+      console.log('✅ OpenRouter success');
+    } catch (openRouterError) {
+      console.warn("⚠️ OpenRouter failed, falling back to Gemini:", openRouterError.message);
+      usedProvider = 'gemini';
+
+      // Fallback to Gemini
+      console.log('🔄 Trying Gemini fallback...');
+      
+      const response = await geminiClient.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: prompt,
+        config: {
+          systemInstruction: systemMessage,
+          temperature: Math.min(temperature * 1.5, 1.0),
+          topP: 1,
+          topK: 1
+        }
+      });
+
+      result = response.text.trim();
+      console.log('✅ Gemini success');
+    }
+
+    res.json({
+      success: true,
+      content: result,
+      provider: usedProvider
+    });
+
+  } catch (error) {
+    console.error("❌ AI API Error:", {
+      message: error.message,
+      stack: error.stack,
+      name: error.name
+    });
+    
+    res.status(500).json({
+      success: false,
+      error: `AI generation failed: ${error.message}`,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
+  }
+});
+
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    openRouterConfigured: !!process.env.OPENROUTER_API_KEY,
+    geminiConfigured: !!(process.env.API_KEY || process.env.GEMINI_API_KEY)
+  });
+});
+
+app.listen(PORT, () => {
+  console.log(`🚀 AI API Server running on port ${PORT}`);
+  console.log(`📡 Health check: http://localhost:${PORT}/api/health`);
+  console.log(`🤖 AI endpoint: http://localhost:${PORT}/api/ai`);
+  
+  // Log configuration status
+  console.log(`🔑 OpenRouter configured: ${!!process.env.OPENROUTER_API_KEY}`);
+  console.log(`🔑 Gemini configured: ${!!(process.env.API_KEY || process.env.GEMINI_API_KEY)}`);
+});
