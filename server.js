@@ -4,8 +4,21 @@ import dotenv from 'dotenv';
 import { OpenRouter } from '@openrouter/sdk';
 import { GoogleGenAI } from '@google/genai';
 
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
 // Load environment variables
 dotenv.config();
+
+// Also try loading .env.local if it exists (for local development variables)
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+if (fs.existsSync(path.join(__dirname, '.env.local'))) {
+  const envConfig = dotenv.parse(fs.readFileSync(path.join(__dirname, '.env.local')));
+  for (const k in envConfig) {
+    process.env[k] = envConfig[k];
+  }
+}
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -19,21 +32,21 @@ const openRouterClient = new OpenRouter({
   apiKey: process.env.OPENROUTER_API_KEY,
 });
 
-const geminiClient = new GoogleGenAI({ 
-  apiKey: process.env.API_KEY || process.env.GEMINI_API_KEY 
+const geminiClient = new GoogleGenAI({
+  apiKey: process.env.API_KEY || process.env.GEMINI_API_KEY
 });
 
 // AI generation endpoint
 app.post('/api/ai', async (req, res) => {
-  console.log('📨 Received AI request:', { 
-    hasPrompt: !!req.body.prompt, 
+  console.log('📨 Received AI request:', {
+    hasPrompt: !!req.body.prompt,
     type: req.body.type,
-    promptLength: req.body.prompt?.length 
+    promptLength: req.body.prompt?.length
   });
 
   try {
-    const { 
-      prompt, 
+    const {
+      prompt,
       systemMessage = "You are a professional resume writer. Output ONLY the enhanced polished professional text. No explanations, no additional commentary.",
       temperature = 0.4,
       maxTokens = 300,
@@ -42,9 +55,9 @@ app.post('/api/ai', async (req, res) => {
 
     if (!prompt) {
       console.error('❌ No prompt provided');
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Prompt is required' 
+      return res.status(400).json({
+        success: false,
+        error: 'Prompt is required'
       });
     }
 
@@ -63,7 +76,7 @@ app.post('/api/ai', async (req, res) => {
     // Try OpenRouter first
     try {
       console.log('🚀 Trying OpenRouter...');
-      
+
       const response = await openRouterClient.chat.send({
         model: "nex-agi/deepseek-v3.1-nex-n1:free",
         messages: [
@@ -88,9 +101,9 @@ app.post('/api/ai', async (req, res) => {
 
       // Fallback to Gemini
       console.log('🔄 Trying Gemini fallback...');
-      
+
       const response = await geminiClient.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-1.5-flash',
         contents: prompt,
         config: {
           systemInstruction: systemMessage,
@@ -116,7 +129,7 @@ app.post('/api/ai', async (req, res) => {
       stack: error.stack,
       name: error.name
     });
-    
+
     res.status(500).json({
       success: false,
       error: `AI generation failed: ${error.message}`,
@@ -127,20 +140,26 @@ app.post('/api/ai', async (req, res) => {
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'ok', 
+  res.json({
+    status: 'ok',
     timestamp: new Date().toISOString(),
     openRouterConfigured: !!process.env.OPENROUTER_API_KEY,
     geminiConfigured: !!(process.env.API_KEY || process.env.GEMINI_API_KEY)
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 AI API Server running on port ${PORT}`);
-  console.log(`📡 Health check: http://localhost:${PORT}/api/health`);
-  console.log(`🤖 AI endpoint: http://localhost:${PORT}/api/ai`);
-  
-  // Log configuration status
-  console.log(`🔑 OpenRouter configured: ${!!process.env.OPENROUTER_API_KEY}`);
-  console.log(`🔑 Gemini configured: ${!!(process.env.API_KEY || process.env.GEMINI_API_KEY)}`);
-});
+// Export the app for Vercel
+export default app;
+
+// Only listen if not running on Vercel
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`🚀 AI API Server running on port ${PORT}`);
+    console.log(`📡 Health check: http://localhost:${PORT}/api/health`);
+    console.log(`🤖 AI endpoint: http://localhost:${PORT}/api/ai`);
+
+    // Log configuration status
+    console.log(`🔑 OpenRouter configured: ${!!process.env.OPENROUTER_API_KEY}`);
+    console.log(`🔑 Gemini configured: ${!!(process.env.API_KEY || process.env.GEMINI_API_KEY)}`);
+  });
+}
