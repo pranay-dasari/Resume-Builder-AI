@@ -21,7 +21,7 @@ if (fs.existsSync(path.join(__dirname, '.env.local'))) {
 }
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+
 
 // Middleware
 app.use(cors());
@@ -150,16 +150,3 @@ app.get('/api/health', (req, res) => {
 
 // Export the app for Vercel
 export default app;
-
-// Only listen if not running on Vercel
-if (!process.env.VERCEL) {
-  app.listen(PORT, () => {
-    console.log(`🚀 AI API Server running on port ${PORT}`);
-    console.log(`📡 Health check: http://localhost:${PORT}/api/health`);
-    console.log(`🤖 AI endpoint: http://localhost:${PORT}/api/ai`);
-
-    // Log configuration status
-    console.log(`🔑 OpenRouter configured: ${!!process.env.OPENROUTER_API_KEY}`);
-    console.log(`🔑 Gemini configured: ${!!(process.env.API_KEY || process.env.GEMINI_API_KEY)}`);
-  });
-}
