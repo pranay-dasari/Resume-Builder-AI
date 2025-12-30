@@ -20,3 +20,100 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+
+/* Recommendation Style */
+@keyframes borderRotate {
+  100% {
+    transform: rotate(1turn);
+  }
+}
+
+.recommendation-border {
+  position: relative;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.recommendation-border::before {
+  content: '';
+  position: absolute;
+  z-index: -2;
+  left: -50%;
+  top: -50%;
+  width: 200%;
+  height: 200%;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-size: 50% 50%, 50% 50%;
+  background-position: 0 0, 100% 0, 100% 100%, 0 100%;
+  background-image: conic-gradient(transparent, #ff00ea, #0080ff, #ea00ff, transparent);
+  animation: borderRotate 4s linear infinite;
+}
+
+.recommendation-border::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  left: 2px;
+  top: 2px;
+  width: calc(100% - 4px);
+  height: calc(100% - 4px);
+  background: rgba(255, 255, 255, 0.95);
+  /* Match dropdown light bg */
+  border-radius: 6px;
+  transition: background-color 0.15s ease;
+}
+
+.recommendation-border:hover::after {
+  background: #f1f5f9;
+  /* slate-100 */
+}
+
+/* Dark mode adjustment */
+:is(.dark .recommendation-border)::after {
+  background: rgba(31, 41, 55, 0.95);
+  /* gray-800/95 */
+}
+
+:is(.dark .recommendation-border)::after {
+  background: rgba(31, 41, 55, 0.95);
+}
+
+:is(.dark .recommendation-border:hover)::after {
+  background: rgba(55, 65, 81, 0.5);
+  /* gray-700/50 */
+}
+
+/* Fallback for system dark mode if .dark class is missing */
+@media (prefers-color-scheme: dark) {
+  .recommendation-border::after {
+    background: rgba(31, 41, 55, 0.95);
+  }
+
+  .recommendation-border:hover::after {
+    background: rgba(55, 65, 81, 0.5);
+  }
+}
+
+.recommended-badge {
+  font-size: 0.65rem;
+  background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-left: auto;
+  animation: hue 5s linear infinite;
+}
+
+@keyframes hue {
+  from {
+    filter: hue-rotate(0deg);
+  }
+
+  to {
+    filter: hue-rotate(360deg);
+  }
+}

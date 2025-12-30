@@ -139,7 +139,7 @@ const ATSDashboard: React.FC<ATSDashboardProps> = ({ resumeData, onClose, onAddS
             {result && (
                 <div className="space-y-6 animate-fadeIn">
                     <div className="flex justify-between items-center">
-                        <h2 className="text-xl font-bold dark:text-white">ATS Analysis Results</h2>
+                        <h2 className="text-xl font-bold dark:text-white">Resume Analysis Results</h2>
                         <button
                             onClick={() => setResult(null)}
                             className="text-sm px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium shadow-sm"

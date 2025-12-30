@@ -1,4 +1,5 @@
 import React from 'react';
+import { Info } from 'lucide-react';
 
 interface ATSAlertsProps {
     message: string | null;
@@ -11,11 +12,11 @@ const ATSAlerts: React.FC<ATSAlertsProps> = ({ message }) => {
         <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg shadow-sm">
             <div className="flex">
                 <div className="flex-shrink-0">
-                    <span className="text-amber-500 text-xl">ℹ️</span>
+                    <Info className="w-5 h-5 text-amber-500" />
                 </div>
                 <div className="ml-3">
                     <p className="text-sm text-amber-800 font-medium">
-                        INSIGHT: EXPERIENCE FLAG
+                        Insight: Experience Flag
                     </p>
                     <p className="text-sm text-amber-700 mt-1">
                         {message}

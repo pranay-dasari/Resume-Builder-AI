@@ -1,4 +1,5 @@
 import React from 'react';
+import { AlertTriangle, Lightbulb, X, Plus } from 'lucide-react';
 
 interface ATSGapAnalysisProps {
     missingCritical: string[]; // List 1
@@ -13,7 +14,7 @@ const ATSGapAnalysis: React.FC<ATSGapAnalysisProps> = ({ missingCritical, missin
             {/* Critical Gaps */}
             <div>
                 <h4 className="flex items-center text-red-600 font-bold mb-3">
-                    <span className="mr-2">⚠️</span> CRITICAL GAPS <span className="text-sm font-normal text-gray-500 ml-2">(Fix to pass filter)</span>
+                    <AlertTriangle className="w-5 h-5 mr-2" /> Critical Gaps <span className="text-sm font-normal text-gray-500 ml-2">(Fix to pass filter)</span>
                 </h4>
                 <div className="flex flex-wrap gap-2">
                     {missingCritical.length > 0 ? (
@@ -24,7 +25,7 @@ const ATSGapAnalysis: React.FC<ATSGapAnalysisProps> = ({ missingCritical, missin
                                 className="px-3 py-1 text-sm font-medium text-red-600 bg-white border border-red-500 rounded-full flex items-center shadow-sm hover:bg-red-50 transition-colors cursor-pointer"
                                 title="Click to add this required skill"
                             >
-                                <span className="mr-1 text-xs">❌</span> {skill}
+                                <X className="w-3 h-3 mr-1" /> {skill}
                             </button>
                         ))
                     ) : (
@@ -39,7 +40,7 @@ const ATSGapAnalysis: React.FC<ATSGapAnalysisProps> = ({ missingCritical, missin
             {missingBonus.length > 0 && (
                 <div>
                     <h4 className="flex items-center text-gray-700 dark:text-gray-300 font-bold mb-3">
-                        <span className="mr-2">💡</span> SUGGESTIONS <span className="text-sm font-normal text-gray-500 ml-2">(To reach 100%)</span>
+                        <Lightbulb className="w-5 h-5 mr-2 text-amber-500" /> Suggestions <span className="text-sm font-normal text-gray-500 ml-2">(To reach 100%)</span>
                     </h4>
                     <div className="flex flex-wrap gap-2">
                         {missingBonus.map((skill, idx) => (
@@ -49,7 +50,7 @@ const ATSGapAnalysis: React.FC<ATSGapAnalysisProps> = ({ missingCritical, missin
                                 className="px-3 py-1 text-sm font-medium text-slate-600 bg-slate-50 border border-dashed border-slate-400 rounded-full flex items-center hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600 transition-colors cursor-pointer"
                                 title="Click to add this bonus skill"
                             >
-                                <span className="mr-1 text-xs">+</span> {skill}
+                                <Plus className="w-3 h-3 mr-1" /> {skill}
                             </button>
                         ))}
                     </div>

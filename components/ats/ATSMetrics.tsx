@@ -1,4 +1,5 @@
 import React from 'react';
+import { GraduationCap, Monitor, Brain } from 'lucide-react';
 
 interface ATSMetricsProps {
     metrics: {
@@ -8,7 +9,7 @@ interface ATSMetricsProps {
     };
 }
 
-const ProgressBar: React.FC<{ label: string; value: number; icon: string }> = ({ label, value, icon }) => {
+const ProgressBar: React.FC<{ label: string; value: number; icon: React.ReactNode }> = ({ label, value, icon }) => {
     let colorClass = 'bg-blue-500';
     if (value >= 80) colorClass = 'bg-emerald-500';
     else if (value >= 50) colorClass = 'bg-amber-500';
@@ -18,7 +19,7 @@ const ProgressBar: React.FC<{ label: string; value: number; icon: string }> = ({
         <div className="flex flex-col space-y-2">
             <div className="flex items-center justify-between text-sm font-medium">
                 <span className="flex items-center text-gray-700 dark:text-gray-300">
-                    <span className="mr-2 text-lg">{icon}</span>
+                    <span className="mr-2 text-lg text-blue-600 dark:text-blue-400">{icon}</span>
                     {label}
                 </span>
                 <span className="text-gray-900 dark:text-gray-100">{value}%</span>
@@ -36,9 +37,9 @@ const ProgressBar: React.FC<{ label: string; value: number; icon: string }> = ({
 const ATSMetrics: React.FC<ATSMetricsProps> = ({ metrics }) => {
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm">
-            <ProgressBar label="Education & Exp" value={metrics.hard_constraints} icon="🎓" />
-            <ProgressBar label="Skill Match" value={metrics.skill_match} icon="💻" />
-            <ProgressBar label="Relevance" value={metrics.semantic_match} icon="🧠" />
+            <ProgressBar label="Education & Exp" value={metrics.hard_constraints} icon={<GraduationCap className="w-5 h-5" />} />
+            <ProgressBar label="Skill Match" value={metrics.skill_match} icon={<Monitor className="w-5 h-5" />} />
+            <ProgressBar label="Relevance" value={metrics.semantic_match} icon={<Brain className="w-5 h-5" />} />
         </div>
     );
 };

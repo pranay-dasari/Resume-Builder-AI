@@ -15,8 +15,11 @@ import { useState } from 'react';
 // Declare html2pdf for TypeScript since it's loaded from a script tag
 declare var html2pdf: any;
 
+import { ChevronDown, Download, Eye, FileText, CheckCircle } from 'lucide-react';
+
 const Header: React.FC<HeaderProps> = ({ resumeData, customization, onBack, onBuildCoverLetter, onImport }) => {
   const [isATSOpen, setIsATSOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
 
   const getPdfOptions = () => {
@@ -155,31 +158,92 @@ const Header: React.FC<HeaderProps> = ({ resumeData, customization, onBack, onBu
           </h1>
         </div>
         <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={() => setIsATSOpen(true)}
-              className="px-3 py-2 text-sm font-medium text-purple-700 bg-purple-50 border border-purple-200 rounded-md shadow-sm hover:bg-purple-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-purple-300 dark:border-gray-600 dark:hover:bg-gray-600"
-            >
-              📊 ATS Score
-            </button>
-            <button
-              onClick={onBuildCoverLetter}
-              className="px-3 py-2 text-sm font-medium text-green-700 bg-green-50 border border-green-200 rounded-md shadow-sm hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 dark:bg-gray-700 dark:text-green-300 dark:border-gray-600 dark:hover:bg-gray-600"
-            >
-              Build Cover Letter
-            </button>
-            <button
-              onClick={handlePreviewPdf}
-              className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600"
-            >
-              Preview
-            </button>
-            <button
-              onClick={handlePrintPdf}
-              className="px-3 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              Download PDF
-            </button>
+          <button
+            onClick={onBuildCoverLetter}
+            className="px-3 py-2 text-sm font-medium text-green-700 bg-green-50 border border-green-200 rounded-md shadow-sm hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 dark:bg-gray-700 dark:text-green-300 dark:border-gray-600 dark:hover:bg-gray-600"
+          >
+            Build Cover Letter
+          </button>
+
+          <div className="relative inline-block text-left">
+            <div>
+              <button
+                type="button"
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="inline-flex justify-center w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 items-center"
+                id="options-menu"
+                aria-expanded="true"
+                aria-haspopup="true"
+              >
+                Download PDF
+                <ChevronDown className="-mr-1 ml-2 h-5 w-5" aria-hidden="true" />
+              </button>
+            </div>
+
+            {isDropdownOpen && (
+              <div
+                className="origin-top-right absolute right-0 mt-2 w-72 rounded-lg shadow-xl bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm ring-1 ring-black ring-opacity-5 focus:outline-none z-50 overflow-hidden animate-slideIn"
+                role="menu"
+                aria-orientation="vertical"
+                aria-labelledby="options-menu"
+              >
+                <div className="p-1" role="none">
+                  <button
+                    onClick={() => {
+                      handlePrintPdf();
+                      setIsDropdownOpen(false);
+                    }}
+                    className="group flex w-full items-center p-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-slate-100 dark:hover:bg-gray-700/50 rounded-lg transition-colors duration-150"
+                    role="menuitem"
+                  >
+                    <div className="flex-shrink-0 flex items-center justify-center h-10 w-10 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/50 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors">
+                      <Download className="h-5 w-5" />
+                    </div>
+                    <div className="ml-3 text-left">
+                      <p className="font-medium text-gray-900 dark:text-white group-hover:text-gray-900 dark:group-hover:text-white">Download PDF</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300">Save your resume as a PDF file</p>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      handlePreviewPdf();
+                      setIsDropdownOpen(false);
+                    }}
+                    className="group flex w-full items-center p-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-slate-100 dark:hover:bg-gray-700/50 rounded-lg transition-colors duration-150 mt-1"
+                    role="menuitem"
+                  >
+                    <div className="flex-shrink-0 flex items-center justify-center h-10 w-10 rounded-lg bg-gray-50 dark:bg-gray-700/30 text-gray-600 dark:text-gray-400 group-hover:bg-gray-100 dark:group-hover:bg-gray-700/50 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors">
+                      <Eye className="h-5 w-5" />
+                    </div>
+                    <div className="ml-3 text-left">
+                      <p className="font-medium text-gray-900 dark:text-white group-hover:text-gray-900 dark:group-hover:text-white">Preview</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300">View how your resume looks</p>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setIsATSOpen(true);
+                      setIsDropdownOpen(false);
+                    }}
+                    className="group flex w-full items-center p-3 text-sm text-gray-700 dark:text-gray-200 rounded-lg transition-colors duration-150 mt-1 recommendation-border"
+                    role="menuitem"
+                  >
+                    <div className="flex-shrink-0 flex items-center justify-center h-10 w-10 rounded-lg bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 group-hover:bg-purple-100 dark:group-hover:bg-purple-900/50 group-hover:text-purple-700 dark:group-hover:text-purple-300 transition-colors z-10 relative">
+                      <FileText className="h-5 w-5" />
+                    </div>
+                    <div className="ml-3 text-left z-10 relative flex-grow">
+                      <div className="flex justify-between items-center w-full">
+                        <p className="font-medium text-gray-900 dark:text-white group-hover:text-gray-900 dark:group-hover:text-white">Resume Score</p>
+                        <span className="recommended-badge">Recommended</span>
+                      </div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300">Check compatibility with ATS</p>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </header>
