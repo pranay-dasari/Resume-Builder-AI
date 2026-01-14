@@ -7,12 +7,13 @@ import Header from './components/Header';
 import LandingPage from './components/LandingPage';
 import ArtifactSelector from './components/ArtifactSelector';
 import CoverLetterBuilder from './components/coverLetter/CoverLetterBuilder';
+import ATSCalculator from './components/ats/ATSCalculator';
 import Footer from './components/layout/Footer';
 import PrivacyPolicy from './components/legal/PrivacyPolicy';
 import TermsAndConditions from './components/legal/TermsAndConditions';
 import ContactPage from './components/legal/ContactPage';
 
-type AppView = 'landing' | 'selector' | 'resume' | 'coverLetter' | 'privacy' | 'terms' | 'contact';
+type AppView = 'landing' | 'selector' | 'resume' | 'coverLetter' | 'atsCalculator' | 'privacy' | 'terms' | 'contact';
 
 const App: React.FC = () => {
   const [resumeData, setResumeData] = useState<ResumeData>(initialResumeData);
@@ -33,6 +34,8 @@ const App: React.FC = () => {
         setCurrentView('terms');
       } else if (path === '/contact') {
         setCurrentView('contact');
+      } else if (path === '/ats-score') {
+        setCurrentView('atsCalculator');
       } else {
         setCurrentView('landing');
       }
@@ -51,19 +54,21 @@ const App: React.FC = () => {
     const handleLinkClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       const link = target.closest('a');
-      
+
       if (link && link.href) {
         const url = new URL(link.href);
         if (url.origin === window.location.origin) {
           e.preventDefault();
           window.history.pushState({}, '', url.pathname);
-          
+
           if (url.pathname === '/privacy-policy') {
             setCurrentView('privacy');
           } else if (url.pathname === '/terms-and-conditions') {
             setCurrentView('terms');
           } else if (url.pathname === '/contact') {
             setCurrentView('contact');
+          } else if (url.pathname === '/ats-score') {
+            setCurrentView('atsCalculator');
           } else {
             setCurrentView('landing');
           }
@@ -125,6 +130,11 @@ const App: React.FC = () => {
     setCurrentView('landing');
   };
 
+  const handleATSCalculator = () => {
+    window.history.pushState({}, '', '/ats-score');
+    setCurrentView('atsCalculator');
+  };
+
   // Legal pages navigation
   if (currentView === 'privacy') {
     return (
@@ -162,10 +172,19 @@ const App: React.FC = () => {
     );
   }
 
+  if (currentView === 'atsCalculator') {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <ATSCalculator onBack={handleBackToLanding} onBuildResume={handleSelectResume} onBuildCoverLetter={handleSelectCoverLetter} />
+        <Footer />
+      </div>
+    );
+  }
+
   if (currentView === 'selector') {
     return (
       <div className="flex flex-col min-h-screen">
-        <ArtifactSelector onSelectResume={handleSelectResume} onSelectCoverLetter={handleSelectCoverLetter} onBack={handleBackToLanding} />
+        <ArtifactSelector onSelectResume={handleSelectResume} onSelectCoverLetter={handleSelectCoverLetter} onATSCalculator={handleATSCalculator} onBack={handleBackToLanding} />
         <Footer />
       </div>
     );
@@ -226,6 +245,7 @@ const App: React.FC = () => {
       <Footer />
     </div>
   );
+
 };
 
 export default App;

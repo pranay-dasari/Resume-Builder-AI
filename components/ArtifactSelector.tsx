@@ -3,10 +3,11 @@ import React from 'react';
 interface ArtifactSelectorProps {
   onSelectResume: () => void;
   onSelectCoverLetter: () => void;
+  onATSCalculator: () => void;
   onBack: () => void;
 }
 
-const ArtifactSelector: React.FC<ArtifactSelectorProps> = ({ onSelectResume, onSelectCoverLetter, onBack }) => {
+const ArtifactSelector: React.FC<ArtifactSelectorProps> = ({ onSelectResume, onSelectCoverLetter, onATSCalculator, onBack }) => {
   const handleContactUs = () => {
     const footer = document.querySelector('footer');
     if (footer) {
@@ -44,32 +45,32 @@ const ArtifactSelector: React.FC<ArtifactSelectorProps> = ({ onSelectResume, onS
           Select the type of document you'd like to create with AI assistance.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
           {/* Resume Card */}
           <div
             onClick={onSelectResume}
-            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer p-8 border border-gray-200 dark:border-gray-700"
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer p-6 border border-gray-200 dark:border-gray-700"
           >
             <div className="flex flex-col items-center">
-              <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mb-6">
-                <svg className="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mb-4">
+                <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
-              <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-3">
+              <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
                 Build Resume
               </h2>
-              <p className="text-gray-600 dark:text-gray-300 text-center mb-6">
+              <p className="text-sm text-gray-600 dark:text-gray-300 text-center mb-4">
                 Create a professional, ATS-friendly resume with AI-powered content enhancement and multiple templates.
               </p>
-              <div className="flex flex-wrap gap-2 justify-center">
-                <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm rounded-full">
+              <div className="flex flex-wrap gap-1.5 justify-center">
+                <span className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs rounded-full">
                   ATS-Friendly
                 </span>
-                <span className="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-sm rounded-full">
+                <span className="px-2 py-0.5 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs rounded-full">
                   AI Enhanced
                 </span>
-                <span className="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 text-sm rounded-full">
+                <span className="px-2 py-0.5 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 text-xs rounded-full">
                   Multiple Templates
                 </span>
               </div>
@@ -79,29 +80,60 @@ const ArtifactSelector: React.FC<ArtifactSelectorProps> = ({ onSelectResume, onS
           {/* Cover Letter Card */}
           <div
             onClick={onSelectCoverLetter}
-            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer p-8 border border-gray-200 dark:border-gray-700"
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer p-6 border border-gray-200 dark:border-gray-700"
           >
             <div className="flex flex-col items-center">
-              <div className="w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mb-6">
-                <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mb-4">
+                <svg className="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                 </svg>
               </div>
-              <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-3">
+              <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
                 Build Cover Letter
               </h2>
-              <p className="text-gray-600 dark:text-gray-300 text-center mb-6">
+              <p className="text-sm text-gray-600 dark:text-gray-300 text-center mb-4">
                 Craft compelling cover letters that sync with your resume data and leverage AI for personalized content.
               </p>
-              <div className="flex flex-wrap gap-2 justify-center">
-                <span className="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-sm rounded-full">
+              <div className="flex flex-wrap gap-1.5 justify-center">
+                <span className="px-2 py-0.5 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs rounded-full">
                   Data Sync
                 </span>
-                <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm rounded-full">
+                <span className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs rounded-full">
                   AI Powered
                 </span>
-                <span className="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 text-sm rounded-full">
+                <span className="px-2 py-0.5 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 text-xs rounded-full">
                   Professional
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* ATS Score Calculator Card */}
+          <div
+            onClick={onATSCalculator}
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer p-6 border border-gray-200 dark:border-gray-700"
+          >
+            <div className="flex flex-col items-center">
+              <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900 rounded-full flex items-center justify-center mb-4">
+                <svg className="w-6 h-6 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+              </div>
+              <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-2">
+                ATS Score Calculator
+              </h2>
+              <p className="text-sm text-gray-600 dark:text-gray-300 text-center mb-4">
+                Check how well your resume matches job descriptions with our ATS compatibility analyzer.
+              </p>
+              <div className="flex flex-wrap gap-1.5 justify-center">
+                <span className="px-2 py-0.5 bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200 text-xs rounded-full">
+                  Score Analysis
+                </span>
+                <span className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs rounded-full">
+                  Skill Matching
+                </span>
+                <span className="px-2 py-0.5 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 text-xs rounded-full">
+                  Instant Feedback
                 </span>
               </div>
             </div>
@@ -115,7 +147,7 @@ const ArtifactSelector: React.FC<ArtifactSelectorProps> = ({ onSelectResume, onS
         </div>
       </div>
 
-      
+
     </div>
   );
 };
