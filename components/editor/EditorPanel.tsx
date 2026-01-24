@@ -21,18 +21,23 @@ interface EditorPanelProps {
 
 const DragHandle: React.FC = () => (
   <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-gray-400 cursor-grab group-hover:text-gray-600">
-      <circle cx="9" cy="6" r="1.5" />
-      <circle cx="15" cy="6" r="1.5" />
-      <circle cx="9" cy="12" r="1.5" />
-      <circle cx="15" cy="12" r="1.5" />
-      <circle cx="9" cy="18" r="1.5" />
-      <circle cx="15" cy="18" r="1.5" />
+    <circle cx="9" cy="6" r="1.5" />
+    <circle cx="15" cy="6" r="1.5" />
+    <circle cx="9" cy="12" r="1.5" />
+    <circle cx="15" cy="12" r="1.5" />
+    <circle cx="9" cy="18" r="1.5" />
+    <circle cx="15" cy="18" r="1.5" />
   </svg>
 );
 
 const EditorPanel: React.FC<EditorPanelProps> = ({ resumeData, onUpdate, template }) => {
   const [draggedItem, setDraggedItem] = useState<{ key: ReorderableSectionKey, column: number } | null>(null);
-  
+  const [activeSection, setActiveSection] = useState<string | null>('basics');
+
+  const handleAccordionToggle = (sectionName: string) => {
+    setActiveSection(prev => prev === sectionName ? null : sectionName);
+  };
+
   const sectionConfig: Record<ReorderableSectionKey, { title: string; component: React.ReactNode }> = {
     summary: { title: 'Summary', component: <SummarySection summary={resumeData.summary} onUpdate={summary => onUpdate({ ...resumeData, summary })} /> },
     profiles: { title: 'Social Profiles', component: <ProfilesSection profiles={resumeData.profiles} onUpdate={profiles => onUpdate({ ...resumeData, profiles })} /> },
@@ -70,10 +75,10 @@ const EditorPanel: React.FC<EditorPanelProps> = ({ resumeData, onUpdate, templat
     if (draggedIndex === -1) return;
 
     const [removed] = sourceColItems.splice(draggedIndex, 1);
-    
+
     const targetIndex = targetColItems.indexOf(targetKey);
     targetColItems.splice(targetIndex, 0, removed);
-    
+
     templateLayout[sourceColKey] = sourceColItems;
     templateLayout[targetColKey] = targetColItems;
     newLayout[template] = templateLayout;
@@ -82,72 +87,81 @@ const EditorPanel: React.FC<EditorPanelProps> = ({ resumeData, onUpdate, templat
 
     onUpdate({ ...resumeData, layout: newLayout, sectionOrder: newSectionOrder });
   };
-  
+
   const handleDropInColumn = (e: React.DragEvent<HTMLDivElement>, targetColumn: number) => {
-     e.preventDefault();
-     if (!draggedItem) return;
+    e.preventDefault();
+    if (!draggedItem) return;
 
-     const { key: draggedKey, column: sourceColumn } = draggedItem;
-     
-     // Only handle if dropping into a different, empty column
-     const templateLayout = resumeData.layout[template];
-     if (!templateLayout || sourceColumn === targetColumn || templateLayout[`column${targetColumn}` as const].length > 0) return;
+    const { key: draggedKey, column: sourceColumn } = draggedItem;
 
-     const newLayout = { ...resumeData.layout };
-     const sourceColKey = `column${sourceColumn}` as const;
-     const targetColKey = `column${targetColumn}` as const;
+    // Only handle if dropping into a different, empty column
+    const templateLayout = resumeData.layout[template];
+    if (!templateLayout || sourceColumn === targetColumn || templateLayout[`column${targetColumn}` as const].length > 0) return;
 
-     const newSourceCol = templateLayout[sourceColKey].filter(k => k !== draggedKey);
-     const newTargetCol = [...templateLayout[targetColKey], draggedKey];
+    const newLayout = { ...resumeData.layout };
+    const sourceColKey = `column${sourceColumn}` as const;
+    const targetColKey = `column${targetColumn}` as const;
 
-     newLayout[template] = {
-         ...templateLayout,
-         [sourceColKey]: newSourceCol,
-         [targetColKey]: newTargetCol
-     };
+    const newSourceCol = templateLayout[sourceColKey].filter(k => k !== draggedKey);
+    const newTargetCol = [...templateLayout[targetColKey], draggedKey];
 
-     const newSectionOrder = [...newLayout[template].column1, ...newLayout[template].column2];
-     onUpdate({ ...resumeData, layout: newLayout, sectionOrder: newSectionOrder });
+    newLayout[template] = {
+      ...templateLayout,
+      [sourceColKey]: newSourceCol,
+      [targetColKey]: newTargetCol
+    };
+
+    const newSectionOrder = [...newLayout[template].column1, ...newLayout[template].column2];
+    onUpdate({ ...resumeData, layout: newLayout, sectionOrder: newSectionOrder });
   };
 
   const handleDragEnd = () => {
     setDraggedItem(null);
   };
-  
+
   const renderSectionsForColumn = (columnKeys: ReorderableSectionKey[], column: number) => {
-      return columnKeys.map(key => (
-          <div
-            key={key}
-            draggable
-            onDragStart={(e) => handleDragStart(e, key, column)}
-            onDragOver={(e) => handleDragOver(e, key, column)}
-            onDragEnd={handleDragEnd}
-            className={`transition-opacity ${draggedItem?.key === key ? 'opacity-50' : 'opacity-100'}`}
-          >
-            <Accordion title={sectionConfig[key].title} dragHandle={<DragHandle />}>
-                {sectionConfig[key].component}
-            </Accordion>
-          </div>
-      ));
+    return columnKeys.map(key => (
+      <div
+        key={key}
+        draggable
+        onDragStart={(e) => handleDragStart(e, key, column)}
+        onDragOver={(e) => handleDragOver(e, key, column)}
+        onDragEnd={handleDragEnd}
+        className={`transition-opacity ${draggedItem?.key === key ? 'opacity-50' : 'opacity-100'}`}
+      >
+        <Accordion
+          title={sectionConfig[key].title}
+          dragHandle={<DragHandle />}
+          isOpen={activeSection === key}
+          onToggle={() => handleAccordionToggle(key)}
+        >
+          {sectionConfig[key].component}
+        </Accordion>
+      </div>
+    ));
   }
-  
+
   const templateLayout = resumeData.layout[template];
   const isMultiColumn = !!templateLayout;
 
   const getColumnTitles = () => {
-      if (template === 'Default') return { col1: 'Main Column (Left)', col2: 'Sidebar (Right)' };
-      if (template === 'Modern') return { col1: 'Main Column (Right)', col2: 'Sidebar (Left)' };
-      if (template === 'Creative') return { col1: 'Sidebar (Left)', col2: 'Main Column (Right)' };
-      if (template === 'Elegant') return { col1: 'Sidebar (Left)', col2: 'Main Column (Right)' };
-      if (template === 'Corporate') return { col1: 'Sidebar (Left)', col2: 'Main Column (Right)' };
-      return { col1: 'Main Column', col2: 'Sidebar Column' };
+    if (template === 'Default') return { col1: 'Main Column (Left)', col2: 'Sidebar (Right)' };
+    if (template === 'Modern') return { col1: 'Main Column (Right)', col2: 'Sidebar (Left)' };
+    if (template === 'Creative') return { col1: 'Sidebar (Left)', col2: 'Main Column (Right)' };
+    if (template === 'Elegant') return { col1: 'Sidebar (Left)', col2: 'Main Column (Right)' };
+    if (template === 'Corporate') return { col1: 'Sidebar (Left)', col2: 'Main Column (Right)' };
+    return { col1: 'Main Column', col2: 'Sidebar Column' };
   }
   const columnTitles = getColumnTitles();
 
 
   return (
     <div className="space-y-1">
-      <Accordion title="Basics" isOpenDefault={true}>
+      <Accordion
+        title="Basics"
+        isOpen={activeSection === 'basics'}
+        onToggle={() => handleAccordionToggle('basics')}
+      >
         <BasicsSection basics={resumeData.basics} onUpdate={basics => onUpdate({ ...resumeData, basics })} />
       </Accordion>
 
@@ -155,7 +169,7 @@ const EditorPanel: React.FC<EditorPanelProps> = ({ resumeData, onUpdate, templat
         <>
           <div>
             <h4 className="p-3 font-semibold text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-700/50">{columnTitles.col1}</h4>
-            <div 
+            <div
               className="min-h-[4rem]" // min height to act as a drop zone
               onDragOver={(e) => e.preventDefault()}
               onDrop={(e) => handleDropInColumn(e, 1)}
@@ -165,7 +179,7 @@ const EditorPanel: React.FC<EditorPanelProps> = ({ resumeData, onUpdate, templat
           </div>
           <div>
             <h4 className="p-3 font-semibold text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-700/50">{columnTitles.col2}</h4>
-            <div 
+            <div
               className="min-h-[4rem]"
               onDragOver={(e) => e.preventDefault()}
               onDrop={(e) => handleDropInColumn(e, 2)}
@@ -176,10 +190,10 @@ const EditorPanel: React.FC<EditorPanelProps> = ({ resumeData, onUpdate, templat
         </>
       ) : (
         resumeData.sectionOrder.map((key) => (
-         <div
+          <div
             key={key}
             draggable
-            onDragStart={(e) => { e.dataTransfer.effectAllowed = 'move'; setDraggedItem({key, column: 0}); }}
+            onDragStart={(e) => { e.dataTransfer.effectAllowed = 'move'; setDraggedItem({ key, column: 0 }); }}
             onDragOver={(e) => {
               e.preventDefault();
               if (!draggedItem || draggedItem.key === key) return;
@@ -187,19 +201,24 @@ const EditorPanel: React.FC<EditorPanelProps> = ({ resumeData, onUpdate, templat
               const currentOrder = resumeData.sectionOrder;
               const draggedIndex = currentOrder.indexOf(draggedItem.key);
               const targetIndex = currentOrder.indexOf(key);
-              
+
               if (draggedIndex === -1 || targetIndex === -1) return;
 
               const newOrder = [...currentOrder];
               const [removed] = newOrder.splice(draggedIndex, 1);
               newOrder.splice(targetIndex, 0, removed);
-              
+
               onUpdate({ ...resumeData, sectionOrder: newOrder });
             }}
             onDragEnd={handleDragEnd}
             className={`transition-opacity ${draggedItem?.key === key ? 'opacity-50' : 'opacity-100'}`}
           >
-            <Accordion title={sectionConfig[key].title} dragHandle={<DragHandle />}>
+            <Accordion
+              title={sectionConfig[key].title}
+              dragHandle={<DragHandle />}
+              isOpen={activeSection === key}
+              onToggle={() => handleAccordionToggle(key)}
+            >
               {sectionConfig[key].component}
             </Accordion>
           </div>
