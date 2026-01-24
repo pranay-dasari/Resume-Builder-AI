@@ -12,7 +12,7 @@ interface LanguagesSectionProps {
 
 const LanguagesSection: React.FC<LanguagesSectionProps> = ({ languages, onUpdate }) => {
   const handleAddItem = () => {
-    onUpdate([...languages, { id: Date.now().toString(), language: '', fluency: 'Professional' }]);
+    onUpdate([...languages, { id: Date.now().toString(), language: '', fluency: '' }]);
   };
 
   const handleRemoveItem = (id: string) => {
@@ -31,6 +31,7 @@ const LanguagesSection: React.FC<LanguagesSectionProps> = ({ languages, onUpdate
           <div className="grid grid-cols-2 gap-4">
             <Input label="Language" value={lang.language} onChange={e => handleChange(lang.id, 'language', e.target.value)} />
             <Select label="Fluency" value={lang.fluency} onChange={e => handleChange(lang.id, 'fluency', e.target.value)}>
+              <option value=""></option>
               {LANGUAGE_FLUENCY.map(level => <option key={level} value={level}>{level}</option>)}
             </Select>
           </div>

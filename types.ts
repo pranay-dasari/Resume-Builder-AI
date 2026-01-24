@@ -50,7 +50,7 @@ export interface Skill {
 export interface Language {
   id: string;
   language: string;
-  fluency: 'Native Speaker' | 'Fluent' | 'Professional' | 'Basic' | 'Intermediate';
+  fluency: 'Native Speaker' | 'Fluent' | 'Professional' | 'Basic' | 'Intermediate' | '';
 }
 
 export interface Certification {
@@ -292,7 +292,7 @@ export const initialCustomizationSettings: CustomizationSettings = {
     }
   },
   layout: {
-    pageFormat: 'Letter',
+    pageFormat: 'A4',
     margins: {
       top: 0,
       bottom: 0,

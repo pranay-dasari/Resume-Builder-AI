@@ -19,6 +19,7 @@ const CoverLetterEditor: React.FC<CoverLetterEditorProps> = ({ data, onUpdate, r
     const [enhancementError, setEnhancementError] = useState<string | null>(null);
     const [showToast, setShowToast] = useState(false);
     const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
+    const [activeSection, setActiveSection] = useState<string | null>('content');
 
     const validateField = (field: keyof CoverLetterData, value: string): string | null => {
         switch (field) {
@@ -144,6 +145,10 @@ const CoverLetterEditor: React.FC<CoverLetterEditorProps> = ({ data, onUpdate, r
         }
     };
 
+    const handleAccordionToggle = (sectionName: string) => {
+        setActiveSection(prev => prev === sectionName ? null : sectionName);
+    };
+
     const salutationOptions = [
         'Dear Hiring Manager,',
         'Dear Sir/Madam,',
@@ -163,7 +168,11 @@ const CoverLetterEditor: React.FC<CoverLetterEditorProps> = ({ data, onUpdate, r
     return (
         <div className="space-y-1">
             {/* Sender Information Section */}
-            <Accordion title="Your Information">
+            <Accordion
+                title="Your Information"
+                isOpen={activeSection === 'sender'}
+                onToggle={() => handleAccordionToggle('sender')}
+            >
                 <div className="space-y-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -229,7 +238,11 @@ const CoverLetterEditor: React.FC<CoverLetterEditorProps> = ({ data, onUpdate, r
             </Accordion>
 
             {/* Recipient Information Section */}
-            <Accordion title="Recipient Information">
+            <Accordion
+                title="Recipient Information"
+                isOpen={activeSection === 'recipient'}
+                onToggle={() => handleAccordionToggle('recipient')}
+            >
                 <div className="grid grid-cols-1 gap-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -290,7 +303,11 @@ const CoverLetterEditor: React.FC<CoverLetterEditorProps> = ({ data, onUpdate, r
             </Accordion>
 
             {/* Job Application Details */}
-            <Accordion title="Job Application Details">
+            <Accordion
+                title="Job Application Details"
+                isOpen={activeSection === 'job'}
+                onToggle={() => handleAccordionToggle('job')}
+            >
                 <div className="grid grid-cols-1 gap-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -326,7 +343,11 @@ const CoverLetterEditor: React.FC<CoverLetterEditorProps> = ({ data, onUpdate, r
             </Accordion>
 
             {/* Letter Content */}
-            <Accordion title="Letter Content" isOpenDefault={true}>
+            <Accordion
+                title="Letter Content"
+                isOpen={activeSection === 'content'}
+                onToggle={() => handleAccordionToggle('content')}
+            >
                 <div className="space-y-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">

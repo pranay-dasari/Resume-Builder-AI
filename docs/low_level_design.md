@@ -1,182 +1,197 @@
 # Low-Level Design Document
 
-This document provides a detailed breakdown of the user interface, including pages, fields, buttons, and their specific functionalities.
+This document provides a comprehensive technical reference for the Resume Builder AI application. It details the system architecture, data models, component hierarchy, backend logic, and external integrations, serving as the single source of truth for developers.
 
-## 1. Landing Page (`LandingPage.tsx`)
+## 1. System Overview
 
-**Route**: `/` (Initial View)
+The Resume Builder AI is a React-based single-page application (SPA) designed to help users create professional resumes and cover letters. It features real-time previewing, AI-powered content enhancement, and a sophisticated ATS (Applicant Tracking System) scoring engine.
 
-### UI Elements
--   **Hero Section**:
-    -   Title: "Build Your Story with an AI Resume Builder"
-    -   Subtitle: "Craft a professional, ATS-friendly resume in minutes."
--   **Primary Action**:
-    -   **Button**: `Start Building`
-        -   **Functionality**: Navigates the user to the **Artifact Selector** view.
+### Tech Stack
+-   **Frontend**: React (TypeScript), Vite, Tailwind CSS
+-   **Backend**: Node.js, Express (functioning as both a local server and Vercel serverless functions)
+-   **AI Providers**: OpenRouter (Primary: DeepSeek-V3), Google Gemini (Fallback)
+-   **Parsing/Search**: `pdf-parse` (PDF text extraction), `Fuse.js` (Fuzzy string matching)
 
-## 2. Artifact Selector (`ArtifactSelector.tsx`)
+---
 
-**Route**: Internal State (`currentView === 'selector'`)
+## 2. Architecture & Data Flow
 
-### UI Elements
--   **Selection Cards**:
-    1.  **Build Resume**
-        -   **Icon**: Document/Resume icon.
-        -   **Badges**: "ATS-Friendly", "AI Enhanced", "Multiple Templates".
-        -   **Action**: Clicking the card navigates to the **Resume Builder** view.
-    2.  **Build Cover Letter**
-        -   **Icon**: Envelope/Letter icon.
-        -   **Badges**: "Data Sync", "AI Powered", "Professional".
-        -   **Action**: Clicking the card navigates to the **Cover Letter Builder** view.
+The application follows a client-server architecture where the frontend manages the state and UI, while the backend handles heavy computation (ATS scoring) and AI API proxying.
 
-## 3. Resume Builder View
+### 2.1 State Management (`App.tsx`)
+The root `App` component manages the global state and "routing" via conditional rendering (`currentView`).
 
-**Route**: Internal State (`currentView === 'resume'`)
-**Layout**: Header (Top), Three-Column Grid (Editor, Preview, Customization).
+-   **`resumeData`**: The core state object containing all user-entered resume information.
+-   **`coverLetterData`**: State for cover letter specific fields; synchronizes with `resumeData`.
+-   **`customization`**: Visual settings (fonts, colors, margins).
+-   **`currentView`**: Controls the active screen (`landing`, `selector`, `resume`, `coverLetter`, `privacy`, `terms`, `contact`).
 
-### 3.1. Header (`Header.tsx`)
+### 2.2 Data Models (`types.ts`)
 
-**Global Actions**:
--   **Import JSON** (Button):
-    -   **Functionality**: Opens a file picker to upload a `resume.json` file. Parses the file and populates the application state.
--   **Export JSON** (Button):
-    -   **Functionality**: Downloads the current resume state as a `resume.json` file.
--   **Preview** (Button):
-    -   **Functionality**: Opens the generated PDF in a new browser tab for review.
--   **Download PDF** (Button):
-    -   **Functionality**: Generates a high-quality PDF of the resume and triggers a file download (`[Name]_Resume.pdf`).
+#### ResumeData
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `basics` | `Basics` | Personal info (Name, Email, Phone, Location, etc.) |
+| `summary` | `string` | Professional summary text |
+| `experience` | `WorkExperience[]` | Array of job history entries |
+| `education` | `Education[]` | Array of educational background entries |
+| `skills` | `Skill[]` | Array of skill categories and keywords |
+| `profiles` | `Profile[]` | Social media/portfolio links (LinkedIn, GitHub) |
+| `projects` | `Project[]` | Notable projects and descriptions |
+| `notifications` | `Certification[]` | Certifications and licenses |
+| `languages` | `Language[]` | Spoken languages and fluency levels |
+| `interests` | `Interest[]` | Personal interests |
+| `layout` | `Object` | Template-specific column configurations |
+| `sectionOrder` | `string[]` | Ordered list of section keys (for drag-and-drop) |
 
-### 3.2. Editor Panel (`EditorPanel.tsx`)
+#### CoverLetterData
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `senderName`...`senderEmail` | `string` | Synced from `ResumeData.basics` |
+| `recipientName`...`companyAddress` | `string` | Target company details |
+| `jobTitle` | `string` | Role being applied for |
+| `bodyContent` | `string` | Main letter text (AI-generatable) |
+| `templateId` | `string` | ID of the selected visual template |
 
-**Location**: Left Column
-**Structure**: Accordion-based list of sections. Users can drag and drop sections to reorder them.
+---
 
-#### Sections & Fields:
+## 3. Detailed Component Breakdown
 
-1.  **Basics**
-    -   **Name**: Text Input
-    -   **Headline**: Text Input (e.g., "Senior Software Engineer")
-    -   **Email**: Text Input
-    -   **Phone**: Text Input
-    -   **Location**: Text Input
-    -   **Website**: Text Input
-    -   **Photo URL**: Text Input (Optional)
+### 3.1 Landing Page (`LandingPage.tsx`)
+-   **Route**: `/` (Initial View)
+-   **Purpose**: Entry point and marketing.
+-   **Actions**: "Start Building" button -> Transitions `currentView` to `selector`.
 
-2.  **Summary**
-    -   **Summary**: Textarea
-    -   **AI Enhance** (Button): Rewrites the summary using Gemini AI to be more professional and impact-focused.
+### 3.2 Artifact Selector (`ArtifactSelector.tsx`)
+-   **Route**: `currentView === 'selector'`
+-   **Purpose**: Central hub to choose between Resume Builder and Cover Letter Builder.
+-   **Logic**:
+    -   Displays cards for "Resume" and "Cover Letter".
+    -   Handles navigation state updates via callback props (`onSelectResume`, `onSelectCoverLetter`).
 
-3.  **Work Experience**
-    -   **Add Experience** (Button): Adds a new job entry.
-    -   **Fields per Entry**:
-        -   **Company**: Text Input
-        -   **Position**: Text Input
-        -   **Location**: Text Input
-        -   **Start Date**: Text Input
-        -   **End Date**: Text Input (Disabled if "Current" is checked)
-        -   **I currently work here**: Checkbox
-        -   **Summary/Achievements**: Textarea with **AI Enhance** button.
+### 3.3 Resume Builder Module
+**Route**: `currentView === 'resume'`
+**Layout**: 3-Column Grid (Editor, Preview, Customization) with a Top Header.
 
-4.  **Education**
-    -   **Institution**: Text Input
-    -   **Degree**: Text Input
-    -   **Area of Study**: Text Input
-    -   **Start/End Date**: Text Inputs
-    -   **Score/Grade**: Text Input (Optional)
+#### A. Header (`Header.tsx`)
+-   **Global Actions**:
+    -   `Measure ATS Score`: Opens `ATSModal` (See Section 3.5).
+    -   `Import JSON`: Loads a `resume.json` file into state.
+    -   `Export JSON`: Saves state to a downloadable JSON file.
+    -   `Download PDF`: Triggers PDF generation (likely via `window.print` or library).
+    -   `Cover Letter`: Switches to Cover Letter Builder.
 
-5.  **Skills**
-    -   **Category Name**: Text Input (e.g., "Frontend")
-    -   **Keywords**: Text Input (Comma-separated, e.g., "React, TypeScript, CSS")
+#### B. Editor Panel (`components/editor/*`)
+Located on the left, this panel allows data entry. It uses an Accordion UI (Collapsible sections).
+-   **`BasicsSection.tsx`**: Inputs for Name, Headline, Email, Phone, Location, Website.
+-   **`SummarySection.tsx`**: Textarea for professional summary + "AI Enhance" button.
+-   **`ExperienceSection.tsx`**: Variable list management for jobs (Company, Role, Dates, Description).
+-   **`EducationSection.tsx`**: Variable list for degrees and schools.
+-   **`SkillsSection.tsx`**: Management of Skill Categories (e.g., "Frontend") and comma-separated keywords.
+-   **`ProjectsSection.tsx`**: Project Name, Role, Description, Link.
+-   **Other Sections**: Profiles, Languages, Certifications, Interests, References.
 
-6.  **Projects**
-    -   **Name**: Text Input
-    -   **Role**: Text Input
-    -   **Description**: Textarea with **AI Enhance** button.
-    -   **Link**: Text Input
+#### C. Preview Panel (`components/preview/PreviewPanel.tsx`)
+Located in the center, this renders the live resume.
+-   **Logic**: Dynamically selects a `TemplateRenderer` based on `customization.template`.
+-   **State**: Reacts immediately to changes in `resumeData`.
 
-7.  **Other Sections**:
-    -   **Social Profiles**: Network, Username, URL.
-    -   **Certifications**: Name, Issuer, Date.
-    -   **Languages**: Language, Fluency (Dropdown).
-    -   **Interests**: Name.
-    -   **References**: Textarea.
+#### D. Customization Panel (`components/customization/CustomizationPanel.tsx`)
+Located on the right.
+-   **Templates**: Grid selector for templates (Professional, Modern, Creative, etc.).
+-   **Colors**: Primary accent color picker.
+-   **Typography**: Font family selection (Heading/Body), Font Size sliders, Line Height slider.
+-   **Layout**: Margin adjustment sliders.
 
-### 3.3. Preview Panel (`PreviewPanel.tsx`)
+### 3.4 Cover Letter Builder (`components/coverLetter/*`)
+**Route**: `currentView === 'coverLetter'`
+-   **`CoverLetterBuilder.tsx`**: Parent container.
+-   **`CoverLetterEditor.tsx`**:
+    -   **Sync Logic**: Auto-populates Sender info from Resume.
+    -   **Job Details**: Inputs for Job Title, Company.
+    -   **Body**: Textarea with specialized AI generation that prompts backend with Resume + Job details to write a tailored letter.
+-   **Preview**: Renders the letter on the right, sharing styling (fonts/colors) with the selected template definition.
 
-**Location**: Center Column
-**Functionality**:
--   Renders the resume in real-time based on the selected **Template** and **Data**.
--   Reflects all changes made in the Editor and Customization panels immediately.
--   Supports Zoom In/Out controls (implied).
+### 3.5 ATS Dashboard Module (`components/ats/*`)
+A sophisticated modal overlay to analyze the resume against a job description.
 
-### 3.4. Customization Panel (`CustomizationPanel.tsx`)
+#### Components
+-   **`ATSModal.tsx`**: Wrapper dialog.
+-   **`ATSDashboard.tsx`**: Main controller.
+    -   **State**: `jdText` (Input), `result` (Analysis outcome).
+    -   **API Call**: POST `/api/ats-score`.
+-   **`ATSScore.tsx`**: Circular gauge visualization of the overall score (0-100).
+-   **`ATSMetrics.tsx`**: Bar charts for sub-scores:
+    -   Hard Constraints (Experience, Education)
+    -   Skill Match (Keyword overlap)
+    -   Semantic Match (Contextual relevance)
+-   **`ATSGapAnalysis.tsx`**:
+    -   Lists **Critical Missing Skills** (High priority).
+    -   Lists **Bonus Missing Skills** (Low priority).
+    -   **Action**: Clicking a missing skill adds it to the Resume's skill list via `onAddSkill` callback.
+-   **`ATSAlerts.tsx`**: Displays warnings (e.g., "Experience Mismatch", "Seniority Warning").
 
-**Location**: Right Column
-**Tabs**:
+---
 
-1.  **Templates**
-    -   **Dropdown/Grid**: Select from templates like "Professional", "Modern", "Creative", "Executive", "Elegant".
-    -   **Color Picker**: Choose primary accent colors.
+## 4. Backend Services & Logic
 
-2.  **Typography** (Font-Resize)
-    -   **Font Family**: Dropdowns for Heading and Body fonts (e.g., Roboto, Lato, Merriweather).
-    -   **Font Sizes**: Sliders/Inputs for Name, Headings, Body text size.
-    -   **Line Height**: Slider to adjust text spacing.
+### 4.1 Backend Architecture
+The backend is a Node.js Express application (`api/index.ts`) configured to run locally or as Vercel serverless functions.
+-   **Configuration**: Loads `.env` for API keys (OpenRouter, Google Gemini).
+-   **Middleware**: CORS enabled, JSON parsing.
 
-3.  **Layout**
-    -   **Page Format**: Toggle between A4 and Letter.
-    -   **Margins**: Sliders for Top, Bottom, Left, Right margins.
+### 4.2 AI Service (`/api/ai`)
+-   **Purpose**: General text generation (Resume Summary, Cover Letter, Rewrites).
+-   **Flow**:
+    1.  Receives `prompt`, `systemMessage`, `temperature`.
+    2.  **Primary**: Attempts request to **OpenRouter** (DeepSeek model).
+    3.  **Fallback**: If OpenRouter fails, attempts request to **Google Gemini** (Flash model).
+    4.  Returns standardized JSON response.
 
-## 4. Cover Letter Builder (`CoverLetterBuilder.tsx`)
+### 4.3 ATS Scoring Engine (`services/atsService.ts`)
+This service implements a multi-phase analysis pipeline.
 
-**Route**: Internal State (`currentView === 'coverLetter'`)
-**Layout**: Split View (Editor Left, Preview Right).
+**Endpoint**: `POST /api/ats-score`
+**Input**: `candidate` (ResumeData), `jobDescription` (Text).
 
-### 4.1. Cover Letter Editor (`CoverLetterEditor.tsx`)
+#### Logic Phases:
+1.  **Phase 0: Extraction**
+    -   Extracts Experience Range (e.g., "3-5 years") from JD text using Regex.
+    -   Extracts Keywords/Skills using context heuristics (scanning for "bonus", "preferred").
 
-#### Sections:
+2.  **Phase 1: Normalization**
+    -   Converts all text to lowercase.
+    -   Uses `canonicalMap` to normalize variations (e.g., "reactjs" -> "react", "aws" -> "amazon web services").
 
-1.  **Your Information** (Auto-synced from Resume)
-    -   **Full Name**: Text Input
-    -   **Email**: Text Input (Validated format)
-    -   **Phone**: Text Input
-    -   **Address**: Text Input
+3.  **Phase 2: Semantic Mapper**
+    -   Uses `Fuse.js` for fuzzy matching logic to handle typos or slight variations in skill naming.
+    -   Maps Candidate Skills and JD Skills to a "Canonical Set".
 
-2.  **Recipient Information**
-    -   **Recipient Name**: Text Input
-    -   **Recipient Title**: Text Input
-    -   **Company Name**: Text Input (Required)
-    -   **Company Address**: Text Input
+4.  **Phase 3: Scoring**
+    -   **Hard Constraints (40%)**:
+        -   Experience Years vs. JD Requirements.
+        -   Education check.
+    -   **Skill Match (35%)**:
+        -   Calculates overlap of Critical and Bonus skills.
+    -   **Semantic Match (25%)**:
+        -   Vector-like "bag-of-words" comparison between full JD text and stringified Resume Data.
 
-3.  **Job Application Details**
-    -   **Job Title**: Text Input (Required)
-    -   **Date**: Date Picker
+5.  **Phase 4: Output**
+    -   Returns total score, breakdown, and gap analysis (missing skills).
 
-4.  **Letter Content**
-    -   **Salutation**: Dropdown + Custom Input (e.g., "Dear Hiring Manager,")
-    -   **Body Content**: Large Textarea.
-        -   **Action**: **Enhance with AI** button.
-            -   **Functionality**: Uses Gemini AI to generate a professional cover letter body based on the user's Resume Data, Job Title, and Company Name.
-    -   **Closing**: Dropdown + Custom Input (e.g., "Sincerely,")
+---
 
-### 4.2. Actions
--   **Back to Selection**: Returns to Artifact Selector.
--   **Go to Resume**: Switches to Resume Builder (preserving data sync).
--   **Download PDF**: Generates the cover letter PDF.
+## 5. Integrations & External Libraries
 
-## 5. Data Models & State
+| Library/Service | Purpose |
+| :--- | :--- |
+| **OpenRouter SDK** | Primary AI Interface (DeepSeek V3). |
+| **@google/genai** | Fallback AI Interface (Gemini 1.5 Flash). |
+| **Fuse.js** | Client-side fuzzy search, reused in backend for skill mapping. |
+| **React Router (Custom)** | Lightweight internal routing state (no external library). |
+| **Tailwind CSS** | Styling engine with Dark Mode support. |
 
-### 5.1. ResumeData
--   **Basics**: Personal info.
--   **Sections**: Arrays of objects (Experience, Education, Skills, etc.).
--   **Layout**: Stores column arrangements for multi-column templates.
--   **SectionOrder**: Array of keys defining the vertical order of sections.
-
-### 5.2. CoverLetterData
--   **Shared Fields**: Synced with ResumeData (Name, Email, Phone, Address).
--   **Specific Fields**: Recipient info, Job info, Letter content.
--   **TemplateId**: ID of the selected cover letter template.
-
-### 5.3. Synchronization Logic
--   Updates to "Basics" in Resume Builder automatically update "Your Information" in Cover Letter Builder.
--   Updates to "Your Information" in Cover Letter Builder reflect back to "Basics" in Resume Builder.
+## 6. Assumptions & Constraints
+-   **Persistence**: Data is currently local-only (browser memory/session). Refreshing resets data unless manually exported/imported.
+-   **ATS Logic**: The ATS engine assumes English language text. Experience calculation interprets "Current" jobs as ending on `Date.now()`.
+-   **AI Usage**: Requires valid API keys in `.env`.
