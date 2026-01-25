@@ -1,6 +1,6 @@
 import React from 'react';
-import { Helmet } from 'react-helmet-async';
 import { CheckCircle, Zap, Download, Sparkles } from 'lucide-react';
+import { usePageSEO } from '../hooks/usePageSEO';
 
 interface CoverLetterBuilderPageProps {
   onStart: () => void;
@@ -8,24 +8,16 @@ interface CoverLetterBuilderPageProps {
 }
 
 const CoverLetterBuilderPage: React.FC<CoverLetterBuilderPageProps> = ({ onStart, onBack }) => {
+  // Apply SEO metadata for this page
+  usePageSEO({
+    title: 'Free Cover Letter Builder | AI Cover Letter Generator',
+    description: 'Create a professional cover letter for free using our AI Cover Letter Builder. Fast, simple, and downloadable in one click.',
+    canonicalUrl: 'https://buildresumenow.in/cover-letter-builder',
+    ogUrl: 'https://buildresumenow.in/cover-letter-builder',
+  });
 
   return (
-    <>
-      <Helmet>
-        <title>Free Cover Letter Builder | AI Cover Letter Generator</title>
-        <meta
-          name="description"
-          content="Create a professional cover letter for free using our AI Cover Letter Builder. Fast, simple, and downloadable in one click."
-        />
-        <link
-          rel="canonical"
-          href="https://buildresumenow.in/cover-letter-builder"
-        />
-        <meta property="og:url" content="https://buildresumenow.in/cover-letter-builder" />
-        <meta name="robots" content="index, follow" />
-      </Helmet>
-
-      <div className="flex flex-col min-h-screen bg-white dark:bg-gray-900">
+    <div className="flex flex-col min-h-screen bg-white dark:bg-gray-900">
       {/* Back button - Top Left */}
       <div className="px-4 py-4">
         <button
@@ -153,7 +145,6 @@ const CoverLetterBuilderPage: React.FC<CoverLetterBuilderPageProps> = ({ onStart
         </section>
       </main>
     </div>
-    </>
   );
 };
 
