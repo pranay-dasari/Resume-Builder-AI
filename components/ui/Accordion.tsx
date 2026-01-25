@@ -5,10 +5,23 @@ interface AccordionProps {
   children: ReactNode;
   isOpenDefault?: boolean;
   dragHandle?: ReactNode;
+  isOpen?: boolean;
+  onToggle?: () => void;
 }
 
-const Accordion: React.FC<AccordionProps> = ({ title, children, isOpenDefault = false, dragHandle }) => {
-  const [isOpen, setIsOpen] = useState(isOpenDefault);
+const Accordion: React.FC<AccordionProps> = ({ title, children, isOpenDefault = false, dragHandle, isOpen: controlledIsOpen, onToggle }) => {
+  const [internalIsOpen, setInternalIsOpen] = useState(isOpenDefault);
+
+  const isControlled = controlledIsOpen !== undefined;
+  const isOpen = isControlled ? controlledIsOpen : internalIsOpen;
+
+  const handleToggle = () => {
+    if (isControlled) {
+      onToggle?.();
+    } else {
+      setInternalIsOpen(!isOpen);
+    }
+  };
 
   return (
     <div className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
@@ -16,7 +29,7 @@ const Accordion: React.FC<AccordionProps> = ({ title, children, isOpenDefault = 
         <button
           type="button"
           className="flex items-center justify-between w-full p-4 font-medium text-left text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none"
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={handleToggle}
         >
           <div className="flex items-center">
             {dragHandle}
