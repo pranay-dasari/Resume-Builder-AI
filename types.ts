@@ -294,7 +294,7 @@ export const initialCustomizationSettings: CustomizationSettings = {
   layout: {
     pageFormat: 'A4',
     margins: {
-      top: 0,
+      top: 1,
       bottom: 0,
       left: 0,
       right: 0,
