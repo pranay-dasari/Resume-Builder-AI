@@ -3,11 +3,12 @@ import { CheckCircle, Zap, Download, Shield } from 'lucide-react';
 import { usePageSEO } from '../hooks/usePageSEO';
 
 interface ResumeBuilderPageProps {
-  onStart: () => void;
+  onBuildSimple: () => void;
+  onBuildCustom: () => void;
   onBack: () => void;
 }
 
-const ResumeBuilderPage: React.FC<ResumeBuilderPageProps> = ({ onStart, onBack }) => {
+const ResumeBuilderPage: React.FC<ResumeBuilderPageProps> = ({ onBuildSimple, onBuildCustom, onBack }) => {
   // Apply SEO metadata for this page
   usePageSEO({
     title: 'Free Resume Builder | AI Resume Builder & Free Resume Download',
@@ -34,19 +35,61 @@ const ResumeBuilderPage: React.FC<ResumeBuilderPageProps> = ({ onStart, onBack }
       {/* Main content */}
       <main className="flex-grow max-w-6xl mx-auto w-full px-4 py-12">
         {/* Hero section */}
-        <section className="mb-16">
+        <section className="mb-16 text-center">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
             Build Your Professional Resume in Minutes
           </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl">
-            Create an ATS-friendly resume using our AI-powered resume builder. Download your resume instantly in PDF format and land your dream job.
+          <p className="text-xl text-gray-600 dark:text-gray-300 mb-10 max-w-3xl mx-auto">
+            Create an ATS-friendly resume using our AI-powered resume builder. Choose the mode that fits your needs.
           </p>
-          <button
-            onClick={onStart}
-            className="px-8 py-4 bg-blue-600 text-white font-bold text-lg rounded-lg shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800 transition-all duration-300 transform hover:scale-105"
-          >
-            Start Building Your Resume
-          </button>
+
+          <div className="flex flex-col md:flex-row justify-center gap-6 max-w-4xl mx-auto">
+            {/* Simple Mode Button */}
+            <button
+              onClick={onBuildSimple}
+              className="flex-1 bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md border-2 border-transparent hover:border-blue-500 hover:shadow-xl transition-all duration-300 group text-left"
+            >
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mr-4 group-hover:bg-blue-600 transition-colors duration-300">
+                  <Zap className="w-6 h-6 text-blue-600 dark:text-blue-400 group-hover:text-white" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">Simple Resume</h3>
+                  <span className="text-xs font-semibold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-2 py-0.5 rounded-full">Recommended</span>
+                </div>
+              </div>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
+                Perfect for standard, professional resumes. Quick, easy, and auto-formatted for best ATS results.
+              </p>
+              <span className="text-blue-600 dark:text-blue-400 font-medium group-hover:underline flex items-center">
+                Start Simple Build
+                <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+              </span>
+            </button>
+
+            {/* Custom Mode Button */}
+            <button
+              onClick={onBuildCustom}
+              className="flex-1 bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md border-2 border-transparent hover:border-purple-500 hover:shadow-xl transition-all duration-300 group text-left"
+            >
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mr-4 group-hover:bg-purple-600 transition-colors duration-300">
+                  <Shield className="w-6 h-6 text-purple-600 dark:text-purple-400 group-hover:text-white" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">Custom Resume</h3>
+                  <span className="text-xs font-semibold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 px-2 py-0.5 rounded-full">Advanced</span>
+                </div>
+              </div>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
+                Full control over layout, fonts, colors, and styling. Best for creative roles or specific design needs.
+              </p>
+              <span className="text-purple-600 dark:text-purple-400 font-medium group-hover:underline flex items-center">
+                Start Custom Build
+                <svg className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+              </span>
+            </button>
+          </div>
         </section>
 
         {/* Features grid */}
@@ -136,12 +179,20 @@ const ResumeBuilderPage: React.FC<ResumeBuilderPageProps> = ({ onStart, onBack }
           <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
             Join thousands of job seekers who have successfully created their resumes with our free builder.
           </p>
-          <button
-            onClick={onStart}
-            className="px-8 py-4 bg-blue-600 text-white font-bold text-lg rounded-lg shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800 transition-all duration-300 transform hover:scale-105"
-          >
-            Start Building Now
-          </button>
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <button
+              onClick={onBuildSimple}
+              className="px-8 py-3 bg-blue-600 text-white font-bold text-lg rounded-lg shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800"
+            >
+              Build Simple Resume
+            </button>
+            <button
+              onClick={onBuildCustom}
+              className="px-8 py-3 bg-purple-600 text-white font-bold text-lg rounded-lg shadow-lg hover:bg-purple-700 focus:outline-none focus:ring-4 focus:ring-purple-300 dark:focus:ring-purple-800"
+            >
+              Build Custom Resume
+            </button>
+          </div>
         </section>
       </main>
     </div>
