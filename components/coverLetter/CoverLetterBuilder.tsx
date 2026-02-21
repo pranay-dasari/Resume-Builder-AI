@@ -6,6 +6,9 @@ import CoverLetterTemplatePanel from './CoverLetterTemplatePanel';
 import TypographyTab from '../customization/TypographyTab';
 import ColorTab from '../customization/ColorTab';
 
+// Declare html2pdf for TypeScript since it's loaded from a script tag
+declare var html2pdf: any;
+
 interface CoverLetterBuilderProps {
   coverLetterData: CoverLetterData;
   onUpdate: (data: CoverLetterData) => void;
@@ -36,9 +39,6 @@ const CoverLetterBuilder: React.FC<CoverLetterBuilderProps> = ({
   const handleCustomizationUpdate = (newSettings: CustomizationSettings) => {
     setCustomization(newSettings);
   };
-
-  // Declare html2pdf for TypeScript since it's loaded from a script tag
-  declare var html2pdf: any;
 
   const getPdfOptions = () => {
     return {
@@ -103,10 +103,16 @@ const CoverLetterBuilder: React.FC<CoverLetterBuilderProps> = ({
   };
 
   const handlePrintPdf = () => {
+    if (typeof (window as any).checkUserLimit === 'function' && !(window as any).checkUserLimit()) {
+      return;
+    }
     performPdfAction('save');
   };
 
   const handlePreviewPdf = () => {
+    if (typeof (window as any).checkUserLimit === 'function' && !(window as any).checkUserLimit()) {
+      return;
+    }
     performPdfAction('preview');
   };
 

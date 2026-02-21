@@ -93,10 +93,16 @@ const Header: React.FC<HeaderProps> = ({ resumeData, customization, onBack, onBu
   };
 
   const handlePrintPdf = () => {
+    if (typeof (window as any).checkUserLimit === 'function' && !(window as any).checkUserLimit()) {
+      return;
+    }
     performPdfAction('save');
   };
 
   const handlePreviewPdf = () => {
+    if (typeof (window as any).checkUserLimit === 'function' && !(window as any).checkUserLimit()) {
+      return;
+    }
     performPdfAction('preview');
   };
 
