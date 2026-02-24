@@ -93,6 +93,10 @@ const CoverLetterEditor: React.FC<CoverLetterEditorProps> = ({ data, onUpdate, r
     };
 
     const handleAIEnhancement = async () => {
+        if (typeof (window as any).checkUserLimit === 'function' && !(window as any).checkUserLimit()) {
+            return;
+        }
+
         // Clear previous enhancement error
         setEnhancementError(null);
         setShowToast(false);

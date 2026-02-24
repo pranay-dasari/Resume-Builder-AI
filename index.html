@@ -6,11 +6,11 @@
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-X2S7ZJMFS6"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
+    function gtag() { dataLayer.push(arguments); }
     gtag('js', new Date());
     gtag('config', 'G-X2S7ZJMFS6');
   </script>
-  
+
   <meta charset="UTF-8" />
   <link rel="icon" type="image/png" href="/favicon.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -27,14 +27,16 @@
 
   <!-- SEO: Open Graph Tags -->
   <meta property="og:title" content="AI Resume Builder | Free Online & ATS-Friendly CV Maker" />
-  <meta property="og:description" content="Build a professional, ATS-friendly resume in minutes with our easy AI resume builder. Try our online CV maker for free and land your dream job!" />
+  <meta property="og:description"
+    content="Build a professional, ATS-friendly resume in minutes with our easy AI resume builder. Try our online CV maker for free and land your dream job!" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://buildresumenow.in/" />
 
   <!-- SEO: Twitter Card Tags -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="AI Resume Builder | Free Online & ATS-Friendly CV Maker" />
-  <meta name="twitter:description" content="Build a professional, ATS-friendly resume in minutes with our easy AI resume builder." />
+  <meta name="twitter:description"
+    content="Build a professional, ATS-friendly resume in minutes with our easy AI resume builder." />
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -89,6 +91,9 @@
     integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
+  <!-- Google GSI Script -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+
   <style>
     /* Simple scrollbar styling for a more modern look */
     ::-webkit-scrollbar {
@@ -139,6 +144,110 @@
            3. "Choose a free resume builder template"
     -->
   <script type="module" src="/index.tsx"></script>
+
+  <div id="g_id_onload" data-client_id="%VITE_GOOGLE_CLIENT_ID%" data-callback="handleGoogleSignIn"
+    data-auto_prompt="true">
+  </div>
+
+  <script>
+    window.addEventListener('load', function () {
+      const user = localStorage.getItem('loggedInUser');
+
+      if (!user) {
+        google.accounts.id.initialize({
+          client_id: '%VITE_GOOGLE_CLIENT_ID%',
+          callback: handleGoogleSignIn,
+          auto_select: true,
+          cancel_on_tap_outside: false
+        });
+        google.accounts.id.prompt();
+      } else {
+        showUserInNavbar(JSON.parse(user));
+      }
+    });
+
+    function handleGoogleSignIn(response) {
+      const payload = JSON.parse(atob(response.credential.split('.')[1]));
+
+      const user = {
+        name: payload.name,
+        email: payload.email,
+        picture: payload.picture,
+        googleId: payload.sub
+      };
+
+      localStorage.setItem('loggedInUser', JSON.stringify(user));
+      showUserInNavbar(user);
+    }
+
+    function showUserInNavbar(user) {
+      // Show user avatar and name in top-right of navbar
+      const navbar = document.querySelector('nav') || document.querySelector('header');
+
+      if (navbar && !document.getElementById('user-profile-box')) {
+        const profileBox = document.createElement('div');
+        profileBox.id = 'user-profile-box';
+        profileBox.style.cssText = `
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          position: absolute;
+          top: 12px;
+          right: 20px;
+          cursor: pointer;
+          z-index: 9999;
+        `;
+
+        profileBox.innerHTML = `
+          <img src="${user.picture}" alt="profile"
+            style="width:34px; height:34px; border-radius:50%; border:2px solid #4285F4;" />
+          <span style="font-size:14px; font-weight:500; color:#333;">${user.name}</span>
+          <button onclick="window.signOutUser()"
+            style="font-size:12px; background:#f1f1f1; border:none;
+            padding:4px 10px; border-radius:20px; cursor:pointer; color:#555;">
+            Sign Out
+          </button>
+        `;
+
+        navbar.style.position = 'relative';
+        navbar.appendChild(profileBox);
+      }
+    }
+
+    window.signOutUser = function () {
+      localStorage.removeItem('loggedInUser');
+      google.accounts.id.disableAutoSelect();
+      location.reload();
+    };
+
+    window.checkUserLimit = function () {
+      const userData = localStorage.getItem('loggedInUser');
+
+      if (!userData) {
+        alert('Please sign in with Google to continue.');
+        google.accounts.id.prompt();
+        return false;
+      }
+
+      const user = JSON.parse(userData);
+      const key = `usage_${user.googleId}`;
+      const today = new Date().toDateString();
+      let usage = JSON.parse(localStorage.getItem(key)) || { count: 0, date: today };
+
+      if (usage.date !== today) {
+        usage = { count: 0, date: today };
+      }
+
+      if (usage.count >= 3) {
+        alert('You have reached your daily limit of 3 resumes. Please try again tomorrow.');
+        return false;
+      }
+
+      usage.count++;
+      localStorage.setItem(key, JSON.stringify(usage));
+      return true;
+    };
+  </script>
 </body>
 
 </html>

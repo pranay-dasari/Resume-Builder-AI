@@ -12,6 +12,9 @@ const SummarySection: React.FC<SummarySectionProps> = ({ summary, onUpdate }) =>
   const [isEnhancing, setIsEnhancing] = useState(false);
 
   const handleEnhance = async () => {
+    if (typeof (window as any).checkUserLimit === 'function' && !(window as any).checkUserLimit()) {
+      return;
+    }
     // FIX: Removed API key check. The service now handles the key from the environment.
     setIsEnhancing(true);
     try {
