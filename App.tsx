@@ -37,6 +37,16 @@ const App: React.FC = () => {
       } else if (path === '/contact') {
         setCurrentView('contact');
       } else if (path === '/resume-builder/build') {
+        // Default to simple if accessed directly without state, or preserve existing
+        setCurrentView('resumeBuilderTool');
+      } else if (path === '/build-resume') {
+        // Simple Mode
+        setResumeData(prev => ({ ...prev, resumeMode: 'simple' }));
+        setCustomization(prev => ({ ...prev, template: 'Professional' }));
+        setCurrentView('resumeBuilderTool');
+      } else if (path === '/build-custom-resume') {
+        // Custom Mode
+        setResumeData(prev => ({ ...prev, resumeMode: 'custom' }));
         setCurrentView('resumeBuilderTool');
       } else if (path === '/resume-builder') {
         setCurrentView('resumeBuilderPage');
@@ -85,19 +95,26 @@ const App: React.FC = () => {
     const handleLinkClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
       const link = target.closest('a');
-      
+
       if (link && link.href) {
         const url = new URL(link.href);
         if (url.origin === window.location.origin) {
           e.preventDefault();
           window.history.pushState({}, '', url.pathname);
-          
+
           if (url.pathname === '/privacy-policy') {
             setCurrentView('privacy');
           } else if (url.pathname === '/terms-and-conditions') {
             setCurrentView('terms');
           } else if (url.pathname === '/contact') {
             setCurrentView('contact');
+          } else if (url.pathname === '/build-resume') {
+            setResumeData(prev => ({ ...prev, resumeMode: 'simple' }));
+            setCustomization(prev => ({ ...prev, template: 'Professional' }));
+            setCurrentView('resumeBuilderTool');
+          } else if (url.pathname === '/build-custom-resume') {
+            setResumeData(prev => ({ ...prev, resumeMode: 'custom' }));
+            setCurrentView('resumeBuilderTool');
           } else if (url.pathname === '/resume-builder/build') {
             setCurrentView('resumeBuilderTool');
           } else if (url.pathname === '/resume-builder') {
@@ -198,7 +215,7 @@ const App: React.FC = () => {
   if (currentView === 'landing') {
     return (
       <div className="flex flex-col min-h-screen">
-        <LandingPage 
+        <LandingPage
           onSelectResume={() => {
             window.history.pushState({}, '', '/resume-builder');
             setCurrentView('resumeBuilderPage');
@@ -216,9 +233,16 @@ const App: React.FC = () => {
   if (currentView === 'resumeBuilderPage') {
     return (
       <div className="flex flex-col min-h-screen">
-        <ResumeBuilderPage 
-          onStart={() => {
-            window.history.pushState({}, '', '/resume-builder/build');
+        <ResumeBuilderPage
+          onBuildSimple={() => {
+            setResumeData(prev => ({ ...prev, resumeMode: 'simple' }));
+            setCustomization(prev => ({ ...prev, template: 'Professional' }));
+            window.history.pushState({}, '', '/build-resume');
+            setCurrentView('resumeBuilderTool');
+          }}
+          onBuildCustom={() => {
+            setResumeData(prev => ({ ...prev, resumeMode: 'custom' }));
+            window.history.pushState({}, '', '/build-custom-resume');
             setCurrentView('resumeBuilderTool');
           }}
           onBack={handleBackToLanding}
@@ -231,7 +255,7 @@ const App: React.FC = () => {
   if (currentView === 'coverLetterBuilderPage') {
     return (
       <div className="flex flex-col min-h-screen">
-        <CoverLetterBuilderPage 
+        <CoverLetterBuilderPage
           onStart={() => {
             window.history.pushState({}, '', '/cover-letter-builder/build');
             setCurrentView('coverLetterBuilderTool');
@@ -272,19 +296,24 @@ const App: React.FC = () => {
             </div>
 
             {/* Center Panel: Preview */}
-            <div className="lg:col-span-4 xl:col-span-2 flex items-start justify-center bg-gray-200 dark:bg-gray-700 rounded-lg shadow-inner">
+            <div className={`${resumeData.resumeMode === 'simple'
+                ? 'lg:col-span-7 xl:col-span-3'
+                : 'lg:col-span-4 xl:col-span-2'
+              } flex items-start justify-center bg-gray-200 dark:bg-gray-700 rounded-lg shadow-inner`}>
               <PreviewPanel resumeData={resumeData} customization={customization} />
             </div>
 
             {/* Right Panel: Customization */}
-            <div className="lg:col-span-3 xl:col-span-1 bg-white dark:bg-gray-800 rounded-lg shadow-md p-1">
-              <CustomizationPanel
-                settings={customization}
-                onUpdate={handleCustomizationChange}
-                resumeData={resumeData}
-                onImport={handleResumeChange}
-              />
-            </div>
+            {resumeData.resumeMode !== 'simple' && (
+              <div className="lg:col-span-3 xl:col-span-1 bg-white dark:bg-gray-800 rounded-lg shadow-md p-1">
+                <CustomizationPanel
+                  settings={customization}
+                  onUpdate={handleCustomizationChange}
+                  resumeData={resumeData}
+                  onImport={handleResumeChange}
+                />
+              </div>
+            )}
           </div>
         </main>
         <Footer />

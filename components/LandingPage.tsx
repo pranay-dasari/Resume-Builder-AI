@@ -48,11 +48,11 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSelectResume, onSelectCover
           <h1 className="text-5xl md:text-6xl font-bold text-gray-800 dark:text-white mb-8">
             Build Your Story with an <span className="text-blue-500">AI Resume Builder</span>
           </h1>
-          
+
           <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-8">
             Craft a professional, ATS-friendly resume in minutes.
           </p>
-          
+
           <button
             onClick={handleStartBuilding}
             aria-label="Start building your resume"
@@ -65,7 +65,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSelectResume, onSelectCover
 
       {/* Choose What to Build Section */}
       <div ref={chooseRef} className="w-full py-20">
-        <div className="max-w-4xl mx-auto px-4">
+        <div className="max-w-6xl mx-auto px-4">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-800 dark:text-white mb-4">
             Choose What to <span className="text-blue-500">Build</span>
           </h2>
@@ -74,8 +74,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSelectResume, onSelectCover
             Select the type of document you'd like to create with AI assistance.
           </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
-            {/* Resume Card */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {/* Resume Builder Card */}
             <div
               onClick={handleSelectResumeWithScroll}
               className="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 cursor-pointer p-8 border border-gray-200 dark:border-gray-700"
@@ -89,18 +89,16 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSelectResume, onSelectCover
                 <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-3">
                   Build Resume
                 </h2>
+                <p className="text-sm font-semibold text-blue-600 dark:text-blue-400 mb-2">Create Professional Resume</p>
                 <p className="text-gray-600 dark:text-gray-300 text-center mb-6">
-                  Create a professional, ATS-friendly resume with AI-powered content enhancement and multiple templates.
+                  Create an ATS-friendly resume in minutes. Choose from simple or custom templates.
                 </p>
                 <div className="flex flex-wrap gap-2 justify-center">
                   <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm rounded-full">
-                    ATS-Friendly
-                  </span>
-                  <span className="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-sm rounded-full">
-                    AI Enhanced
+                    Simple Mode
                   </span>
                   <span className="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 text-sm rounded-full">
-                    Multiple Templates
+                    Custom Mode
                   </span>
                 </div>
               </div>

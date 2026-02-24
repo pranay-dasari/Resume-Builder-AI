@@ -112,7 +112,8 @@ export interface ResumeData {
       column1: ReorderableSectionKey[];
       column2: ReorderableSectionKey[];
     }
-  }
+  };
+  resumeMode: 'simple' | 'custom';
 }
 
 export const initialResumeData: ResumeData = {
@@ -217,7 +218,8 @@ export const initialResumeData: ResumeData = {
       column1: ['skills', 'education', 'projects', 'profiles', 'languages', 'certifications', 'interests'],
       column2: ['summary', 'experience', 'references']
     }
-  }
+  },
+  resumeMode: 'simple'
 };
 
 // --- Customization Types ---
@@ -294,7 +296,7 @@ export const initialCustomizationSettings: CustomizationSettings = {
   layout: {
     pageFormat: 'A4',
     margins: {
-      top: 0,
+      top: 1,
       bottom: 0,
       left: 0,
       right: 0,
