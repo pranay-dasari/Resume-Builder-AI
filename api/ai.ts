@@ -109,7 +109,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             console.log('🔄 Trying Gemini fallback...');
 
             const response = await geminiClient.models.generateContent({
-                model: 'gemini-1.5-flash',
+                model: 'gemini-2.5-flash-lite',
                 contents: prompt,
                 config: {
                     systemInstruction: systemMessage,
