@@ -5,6 +5,7 @@ import CoverLetterPreview from './CoverLetterPreview';
 import CoverLetterTemplatePanel from './CoverLetterTemplatePanel';
 import TypographyTab from '../customization/TypographyTab';
 import ColorTab from '../customization/ColorTab';
+import AuthButton from '../AuthButton';
 
 // Declare html2pdf for TypeScript since it's loaded from a script tag
 declare var html2pdf: any;
@@ -163,6 +164,7 @@ const CoverLetterBuilder: React.FC<CoverLetterBuilderProps> = ({
               >
                 Download PDF
               </button>
+              <AuthButton />
             </div>
           </nav>
         </div>

@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import AuthButton from './AuthButton';
 
 interface LandingPageProps {
   onSelectResume: () => void;
@@ -33,14 +34,17 @@ const LandingPage: React.FC<LandingPageProps> = ({ onSelectResume, onSelectCover
 
   return (
     <div className="bg-gray-100 dark:bg-gray-900 text-center p-4 relative">
-      {/* Contact Us Button - Top Right */}
-      <button
-        onClick={handleContactUs}
-        aria-label="Contact Us"
-        className="absolute top-4 right-4 px-8 py-3 bg-blue-600 text-white font-bold text-sm rounded-lg shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-800 transition-all duration-300 transform hover:scale-105"
-      >
-        Contact Us
-      </button>
+      {/* Auth and Contact Us - Top Right */}
+      <div className="absolute top-4 right-4 flex items-center gap-4 z-50">
+        <button
+          onClick={handleContactUs}
+          aria-label="Contact Us"
+          className="px-6 py-2.5 bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-200 font-bold text-sm rounded-lg shadow-sm border border-gray-300 dark:border-gray-700 hover:bg-gray-300 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-600 transition-all duration-300"
+        >
+          Contact Us
+        </button>
+        <AuthButton />
+      </div>
 
       {/* Hero Section - Centered */}
       <div className="min-h-screen flex flex-col items-center justify-center">

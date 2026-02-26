@@ -3,7 +3,18 @@ import '@testing-library/jest-dom';
 // Mock environment variables
 process.env.API_KEY = 'test-api-key';
 
-// Mock window.matchMedia
+// Mock Vite's import.meta.env
+jest.mock('lucide-react', () => ({
+  Upload: () => null,
+  Download: () => null,
+  Eye: () => null,
+  Wand2: () => null,
+  ChevronLeft: () => null,
+  LayoutTemplate: () => null,
+}));
+
+// Use standard process.env mock instead
+process.env.VITE_GOOGLE_CLIENT_ID = 'test-client-id';
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: jest.fn().mockImplementation(query => ({
