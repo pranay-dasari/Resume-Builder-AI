@@ -46,6 +46,6 @@ describe('Footer Component', () => {
   });
 
   test('renders contact us section', () => {
-    expect(screen.getByText('Contact Us')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Contact Us/i })).toBeInTheDocument();
   });
 });

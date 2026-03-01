@@ -4,7 +4,7 @@ import atsScoreHandler from '../../api/ats-score';
 
 const app = express();
 app.use(express.json());
-app.post('/api/ats-score', atsScoreHandler);
+app.post('/api/ats-score', atsScoreHandler as any);
 
 describe('ATS Score API', () => {
     it('should return 400 if resumeText or jobDescription is missing', async () => {
@@ -14,7 +14,8 @@ describe('ATS Score API', () => {
 
         expect(response.status).toBe(400);
         expect(response.body).toEqual({
-            error: 'Missing required parameters: resumeText, jobDescription'
+            success: false,
+            error: 'Missing candidate or jobDescription'
         });
     });
 

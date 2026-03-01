@@ -5,6 +5,6 @@ module.exports = {
         ['@babel/preset-react', { runtime: 'automatic' }],
     ],
     plugins: [
-        ['babel-plugin-transform-import-meta', { module: 'commonjs' }]
+        ['babel-plugin-transform-import-meta', { module: 'CommonJS' }]
     ]
 };

@@ -1,4 +1,11 @@
 import '@testing-library/jest-dom';
+import { TextEncoder, TextDecoder } from 'util';
+import { ReadableStream } from 'node:stream/web';
+
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder as any;
+global.ReadableStream = ReadableStream as any;
+
 
 // Mock environment variables
 process.env.API_KEY = 'test-api-key';
@@ -11,23 +18,44 @@ jest.mock('lucide-react', () => ({
   Wand2: () => null,
   ChevronLeft: () => null,
   LayoutTemplate: () => null,
+  CheckCircle: () => null,
+  FileText: () => null,
+  ChevronDown: () => null,
+}));
+
+jest.mock('@google/genai', () => ({
+  GoogleGenAI: jest.fn().mockImplementation(() => ({
+    getGenerativeModel: jest.fn(),
+  })),
+}));
+
+jest.mock('@openrouter/sdk', () => ({
+  OpenRouter: jest.fn().mockImplementation(() => ({
+    chat: {
+      completions: {
+        create: jest.fn(),
+      },
+    },
+  })),
 }));
 
 // Use standard process.env mock instead
-process.env.VITE_GOOGLE_CLIENT_ID = 'test-client-id';
-Object.defineProperty(window, 'matchMedia', {
-  writable: true,
-  value: jest.fn().mockImplementation(query => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: jest.fn(), // deprecated
-    removeListener: jest.fn(), // deprecated
-    addEventListener: jest.fn(),
-    removeEventListener: jest.fn(),
-    dispatchEvent: jest.fn(),
-  })),
-});
+process.env.GOOGLE_CLIENT_ID = 'test-client-id';
+if (typeof window !== 'undefined') {
+  Object.defineProperty(window, 'matchMedia', {
+    writable: true,
+    value: jest.fn().mockImplementation(query => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: jest.fn(), // deprecated
+      removeListener: jest.fn(), // deprecated
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+      dispatchEvent: jest.fn(),
+    })),
+  });
+}
 
 // Mock window.alert
 global.alert = jest.fn();

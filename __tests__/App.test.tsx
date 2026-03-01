@@ -33,8 +33,7 @@ describe('App Component', () => {
             </HelmetProvider>
         );
 
-        // The main landing page will have the "Build Your Dream Resume..." text
-        // or we can test if the header Nav renders "BuildResumeNow"
-        expect(screen.getByText(/BuildResumeNow/i)).toBeInTheDocument();
+        // The main landing page will have the "Build Your Story..." text
+        expect(screen.getByText(/Build Your Story with an/i)).toBeInTheDocument();
     });
 });

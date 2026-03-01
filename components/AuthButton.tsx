@@ -7,7 +7,10 @@ const AuthButton: React.FC = () => {
     if (user) {
         return (
             <button
-                onClick={() => {
+                type="button"
+                onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     if (window.confirm('Are you sure you want to sign out?')) {
                         logout();
                     }
@@ -20,7 +23,7 @@ const AuthButton: React.FC = () => {
                     alt="Profile"
                     className="w-full h-full object-cover"
                     onError={(e) => {
-                        (e.target as HTMLImageElement).src = "/default-avatar.png";
+                        (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`;
                     }}
                 />
             </button>
@@ -28,16 +31,18 @@ const AuthButton: React.FC = () => {
     }
 
     return (
-        <button
-            onClick={login}
-            disabled={!isGoogleLoaded}
-            className={`px-5 py-2.5 rounded-lg font-bold text-sm transition-all duration-300 shadow-md whitespace-nowrap ${isGoogleLoaded
-                    ? 'bg-blue-600 hover:bg-blue-700 text-white hover:scale-105 hover:shadow-lg'
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                }`}
-        >
-            Sign In
-        </button>
+        <div className="flex items-center min-h-[40px] justify-end">
+            {!isGoogleLoaded ? (
+                <div className="animate-pulse bg-gray-200 dark:bg-gray-700 h-9 w-28 rounded-full shadow-sm"></div>
+            ) : (
+                <button
+                    onClick={login}
+                    className="px-6 py-2.5 bg-blue-600 text-white font-bold text-sm rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 transform hover:scale-105"
+                >
+                    Sign In
+                </button>
+            )}
+        </div>
     );
 };
 
