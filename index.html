@@ -145,7 +145,8 @@
     -->
   <script type="module" src="/index.tsx"></script>
 
-  <div id="g_id_onload" data-client_id="%GOOGLE_CLIENT_ID%" data-callback="handleGoogleSignIn" data-auto_prompt="true">
+  <div id="g_id_onload" data-client_id="%VITE_GOOGLE_CLIENT_ID%" data-callback="handleGoogleSignIn"
+    data-auto_prompt="true">
   </div>
 
   <script>
@@ -154,7 +155,7 @@
 
       if (!user) {
         google.accounts.id.initialize({
-          client_id: '%GOOGLE_CLIENT_ID%',
+          client_id: '%VITE_GOOGLE_CLIENT_ID%',
           callback: handleGoogleSignIn,
           auto_select: true,
           cancel_on_tap_outside: false
