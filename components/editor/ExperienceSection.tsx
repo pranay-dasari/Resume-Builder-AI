@@ -25,6 +25,9 @@ const ExperienceSection: React.FC<ExperienceSectionProps> = ({ experience, onUpd
   };
 
   const handleEnhance = async (id: string, text: string) => {
+    if (typeof (window as any).checkUserLimit === 'function' && !(window as any).checkUserLimit()) {
+      return;
+    }
     // FIX: Removed API key check. The service now handles the key from the environment.
     setEnhancingId(id);
     try {
