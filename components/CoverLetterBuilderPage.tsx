@@ -1,7 +1,6 @@
 import React from 'react';
 import { CheckCircle, Zap, Download, Sparkles } from 'lucide-react';
 import { usePageSEO } from '../hooks/usePageSEO';
-import AuthButton from './AuthButton';
 
 interface CoverLetterBuilderPageProps {
   onStart: () => void;
