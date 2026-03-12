@@ -1,6 +1,7 @@
 import React from 'react';
 import { CheckCircle, Zap, Download, Shield } from 'lucide-react';
 import { usePageSEO } from '../hooks/usePageSEO';
+import AuthButton from './AuthButton';
 
 interface ResumeBuilderPageProps {
   onBuildSimple: () => void;

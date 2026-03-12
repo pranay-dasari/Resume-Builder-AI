@@ -18,8 +18,7 @@ export default defineConfig(({ mode }) => {
     },
     plugins: [react()],
     define: {
-      // Remove API keys from client-side bundle for security
-      // API keys are now handled securely on the server side
+      'process.env.GOOGLE_CLIENT_ID': JSON.stringify(env.GOOGLE_CLIENT_ID),
     },
     resolve: {
       alias: {
