@@ -53,7 +53,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const initializeGSI = useCallback((autoSelect: boolean) => {
         if (!(window as any).google) return false;
 
-        const client_id = process.env.GOOGLE_CLIENT_ID;
+        const client_id = process.env.VITE_GOOGLE_CLIENT_ID;
         if (!client_id) {
             console.error("AuthContext: Google Client ID is missing");
             return false;

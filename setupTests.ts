@@ -40,7 +40,7 @@ jest.mock('@openrouter/sdk', () => ({
 }));
 
 // Use standard process.env mock instead
-process.env.GOOGLE_CLIENT_ID = 'test-client-id';
+process.env.VITE_GOOGLE_CLIENT_ID = 'test-client-id';
 if (typeof window !== 'undefined') {
   Object.defineProperty(window, 'matchMedia', {
     writable: true,
