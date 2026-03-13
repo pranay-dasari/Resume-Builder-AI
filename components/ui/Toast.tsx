@@ -23,7 +23,10 @@ const Toast: React.FC<ToastProps> = ({ message, type = 'info', onClose, duration
     };
 
     return (
-        <div className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-4 py-2 rounded-md shadow-lg text-white ${bgColors[type]} transition-opacity duration-300`}>
+        <div
+            role="alert"
+            className={`fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-4 py-2 rounded-md shadow-lg text-white ${bgColors[type]} transition-opacity duration-300`}
+        >
             <div className="flex items-center space-x-2">
                 <span>{message}</span>
                 <button

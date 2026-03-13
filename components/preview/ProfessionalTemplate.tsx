@@ -211,9 +211,9 @@ const ProfessionalTemplate: React.FC<TemplateProps> = ({ data, settings }) => {
             <hr className="mb-4" />
 
             {data.sectionOrder.map(key => (
-                <React.Fragment key={key}>
+                <div key={key}>
                     {sectionComponents[key]}
-                </React.Fragment>
+                </div>
             ))}
 
         </div>

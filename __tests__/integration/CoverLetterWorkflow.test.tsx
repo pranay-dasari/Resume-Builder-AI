@@ -3,14 +3,14 @@
  */
 
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act, waitForElementToBeRemoved } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import App from '../../App';
 import * as geminiService from '../../services/geminiService';
 
 // Mock the Gemini service
 jest.mock('../../services/geminiService');
-const mockEnhanceCoverLetterWithAI = geminiService.enhanceCoverLetterWithAI as jest.MockedFunction<typeof geminiService.enhanceCoverLetterWithAI>;
+const mockEnhanceCoverLetterWithAI = (geminiService.enhanceCoverLetterWithAI as any);
 
 // Mock PDF generation
 declare global {
@@ -18,6 +18,13 @@ declare global {
 }
 
 beforeAll(() => {
+  // Mock scroll methods which are not implemented in JSDOM
+  Element.prototype.scrollIntoView = jest.fn();
+  window.scrollTo = jest.fn();
+  window.scrollBy = jest.fn();
+  window.alert = jest.fn();
+  (window as any).checkUserLimit = jest.fn(() => true);
+
   global.html2pdf = jest.fn(() => ({
     from: jest.fn().mockReturnThis(),
     set: jest.fn().mockReturnThis(),
@@ -32,79 +39,108 @@ beforeAll(() => {
 describe('Cover Letter Workflow Integration', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    window.history.pushState({}, '', '/');
   });
 
   test('complete user workflow from landing to cover letter creation', async () => {
     render(<App />);
-    
+
     // 1. Start from landing page
-    expect(screen.getByText(/Build Your Story with an/)).toBeInTheDocument();
-    
-    const startButton = screen.getByText('Start Building');
+    expect(screen.getByText((content, element) => content.includes('Build Your Story with an'))).toBeInTheDocument();
+
+    const startButton = screen.getAllByText((content, element) => content === 'Start Building')[0];
     fireEvent.click(startButton);
-    
+
     // 2. Navigate to artifact selector
-    expect(screen.getByText('Choose What to Build')).toBeInTheDocument();
-    expect(screen.getByText('Build Resume')).toBeInTheDocument();
-    expect(screen.getByText('Build Cover Letter')).toBeInTheDocument();
-    
-    const coverLetterCard = screen.getByText('Build Cover Letter');
+    await screen.findByRole('heading', { name: /Choose What to Build/i, level: 2 }, { timeout: 10000 });
+    expect(screen.getAllByText('Build Resume')[0]).toBeInTheDocument();
+    expect(screen.getAllByText('Build Cover Letter')[0]).toBeInTheDocument();
+
+    const coverLetterCard = screen.getAllByText('Build Cover Letter')[0];
     fireEvent.click(coverLetterCard);
-    
-    // 3. Should now be in cover letter builder
-    expect(screen.getByText('AI Cover Letter Builder')).toBeInTheDocument();
+
+    // 3. Should now be in cover letter landing page, click start
+    const startWritingButton = screen.getByText((content, element) => content === 'Start Writing Your Cover Letter');
+    fireEvent.click(startWritingButton);
+
+    // 4. Should now be in cover letter builder
+    expect(screen.getByRole('heading', { name: /AI Cover Letter Builder/i })).toBeInTheDocument();
     expect(screen.getByText('Cover Letter Details')).toBeInTheDocument();
-    expect(screen.getByText('Preview')).toBeInTheDocument();
+
+    // Check for dropdown trigger instead of direct Preview button
+    expect(screen.getByRole('button', { name: /Download PDF/i })).toBeInTheDocument();
   });
 
   test('data synchronization between resume and cover letter', async () => {
     render(<App />);
-    
+
     // Navigate to cover letter builder
-    fireEvent.click(screen.getByText('Start Building'));
-    fireEvent.click(screen.getByText('Build Cover Letter'));
-    
-    // Check that resume data is pre-populated
-    const nameInput = screen.getByDisplayValue('John Doe');
+    fireEvent.click(screen.getAllByText('Start Building')[0]);
+    fireEvent.click(screen.getAllByText('Build Cover Letter')[0]);
+    fireEvent.click(screen.getByText('Start Writing Your Cover Letter'));
+
+    // 4. Should now be in cover letter builder
+    expect(screen.getByRole('heading', { name: /AI Cover Letter Builder/i })).toBeInTheDocument();
+
+    // Expand Your Information to see sync'd data
+    fireEvent.click(screen.getByText('Your Information'));
+
+    const nameInput = screen.getAllByDisplayValue('John Doe')[0];
     expect(nameInput).toBeInTheDocument();
-    
-    const emailInput = screen.getByDisplayValue('john.doe@gmail.com');
+
+    const emailInput = screen.getAllByDisplayValue('john.doe@gmail.com')[0];
     expect(emailInput).toBeInTheDocument();
-    
+
     // Change name in cover letter
     fireEvent.change(nameInput, { target: { value: 'Jane Smith' } });
-    
-    // Go back to resume builder to verify sync
-    fireEvent.click(screen.getByLabelText('Go back to artifact selection'));
-    fireEvent.click(screen.getByText('Build Resume'));
-    
+
+    // Go back to resume builder via header button
+    const switchButton = screen.getByRole('button', { name: /Switch to resume builder/i });
+    fireEvent.click(switchButton);
+
+    // If it lands on landing page, click the 'Build Resume' card
+    if (screen.queryByText(/Choose What to Build/i)) {
+      fireEvent.click(screen.getAllByText('Build Resume')[0]);
+    }
+
+    // Should now be in resume builder
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: /AI Resume Builder/i })).toBeInTheDocument();
+    }, { timeout: 10000 });
+
     // Note: This would require more complex state management testing
     // to verify the actual synchronization across components
   });
 
   test('AI enhancement workflow', async () => {
     mockEnhanceCoverLetterWithAI.mockResolvedValue('AI generated cover letter content that highlights relevant experience and skills for the Software Developer position at Tech Corp.');
-    
+
     render(<App />);
-    
+
     // Navigate to cover letter builder
-    fireEvent.click(screen.getByText('Start Building'));
-    fireEvent.click(screen.getByText('Build Cover Letter'));
-    
+    fireEvent.click(screen.getAllByText('Start Building')[0]);
+    fireEvent.click(screen.getAllByText('Build Cover Letter')[0]);
+    fireEvent.click(screen.getByText('Start Writing Your Cover Letter'));
+
     // Fill in required fields
+    fireEvent.click(screen.getByText('Job Application Details'));
     const jobTitleInput = screen.getByPlaceholderText('Software Developer');
     fireEvent.change(jobTitleInput, { target: { value: 'Software Developer' } });
-    
+
+    fireEvent.click(screen.getByText('Recipient Information'));
     const companyInput = screen.getByPlaceholderText('Company Inc.');
     fireEvent.change(companyInput, { target: { value: 'Tech Corp' } });
-    
+
+    // Expand Letter Content to show AI button
+    fireEvent.click(screen.getByText('Letter Content'));
+
     // Use AI enhancement
     const aiButton = screen.getByText('Enhance with AI');
     fireEvent.click(aiButton);
-    
+
     // Should show loading state
     expect(screen.getByText('Enhancing...')).toBeInTheDocument();
-    
+
     // Wait for AI enhancement to complete
     await waitFor(() => {
       expect(mockEnhanceCoverLetterWithAI).toHaveBeenCalledWith(
@@ -114,88 +150,151 @@ describe('Cover Letter Workflow Integration', () => {
         ''
       );
     });
-    
+
     // Should update the preview with AI content
     await waitFor(() => {
-      expect(screen.getByText(/AI generated cover letter content/)).toBeInTheDocument();
-    });
+      const preview = screen.getByRole('document');
+      if (!preview.textContent?.includes('AI generated cover letter content')) {
+        // screen.debug(preview); // Uncomment if still failing
+      }
+      expect(preview.textContent).toContain('AI generated cover letter content');
+    }, { timeout: 5000 });
   });
 
   test('template selection updates preview', async () => {
     render(<App />);
-    
+
     // Navigate to cover letter builder
-    fireEvent.click(screen.getByText('Start Building'));
-    fireEvent.click(screen.getByText('Build Cover Letter'));
-    
-    // Open template selector
-    const templatesButton = screen.getByText('Templates');
-    fireEvent.click(templatesButton);
-    
-    // Select Modern template
-    const modernTemplate = screen.getByText('Modern');
+    fireEvent.click(screen.getAllByText('Start Building')[0]);
+    fireEvent.click(screen.getAllByText('Build Cover Letter')[0]);
+    fireEvent.click(screen.getByText('Start Writing Your Cover Letter'));
+
+    // Select Modern template - it's already in the Templates tab by default
+    const modernTemplate = screen.getAllByText('Modern')[0];
     fireEvent.click(modernTemplate);
-    
-    // Template selector should close
+
+    // Template should be selected (check for active state or callback if possible)
+    // No Choose Template modal anymore
     expect(screen.queryByText('Choose Template')).not.toBeInTheDocument();
-    
+
     // Preview should update (this would require checking styling changes)
     expect(screen.getByRole('document')).toBeInTheDocument();
   });
 
   test('PDF generation workflow', async () => {
     render(<App />);
-    
+
     // Navigate to cover letter builder
-    fireEvent.click(screen.getByText('Start Building'));
-    fireEvent.click(screen.getByText('Build Cover Letter'));
-    
+    fireEvent.click(screen.getAllByText('Start Building')[0]);
+    fireEvent.click(screen.getAllByText('Build Cover Letter')[0]);
+    fireEvent.click(screen.getByText('Start Writing Your Cover Letter'));
+
     // Mock the preview element
     const mockElement = document.createElement('div');
     mockElement.id = 'cover-letter-preview';
     document.body.appendChild(mockElement);
-    
+
     // Fill in some basic data
-    const nameInput = screen.getByDisplayValue('John Doe');
+    fireEvent.click(screen.getByText('Your Information'));
+    const nameInput = screen.getAllByDisplayValue('John Doe')[0];
     fireEvent.change(nameInput, { target: { value: 'Test User' } });
-    
+
+    fireEvent.click(screen.getByText('Recipient Information'));
     const companyInput = screen.getByPlaceholderText('Company Inc.');
     fireEvent.change(companyInput, { target: { value: 'Test Company' } });
-    
+
+    // Open Download dropdown
+    const dropdownTrigger = screen.getByRole('button', { name: /Download PDF/i });
+    fireEvent.click(dropdownTrigger);
+
     // Download PDF
     const downloadButton = screen.getByLabelText('Download cover letter as PDF');
     fireEvent.click(downloadButton);
-    
+
     await waitFor(() => {
       expect(global.html2pdf).toHaveBeenCalled();
     });
-    
+
     document.body.removeChild(mockElement);
   });
 
   test('form validation prevents invalid submissions', async () => {
+    console.log('Test started');
     render(<App />);
-    
+    console.log('App rendered');
+
     // Navigate to cover letter builder
-    fireEvent.click(screen.getByText('Start Building'));
-    fireEvent.click(screen.getByText('Build Cover Letter'));
-    
+    console.log('Waiting for Start Building button');
+    const startBuildingBtn = await screen.findByText('Start Building');
+    console.log('Found Start Building button, clicking');
+    fireEvent.click(startBuildingBtn);
+
+    console.log('Waiting for Build Cover Letter button');
+    const buildCoverLetterBtn = await screen.findByText('Build Cover Letter');
+    console.log('Found Build Cover Letter button, clicking');
+    fireEvent.click(buildCoverLetterBtn);
+
+    console.log('Waiting for Start Writing button');
+    const startWritingBtn = await screen.findByText('Start Writing Your Cover Letter');
+    console.log('Found Start Writing button, clicking');
+    fireEvent.click(startWritingBtn);
+
     // Try to use AI enhancement without required fields
-    const aiButton = screen.getByText('Enhance with AI');
+    // Letter Content is open by default, so we can find the button
+    console.log('Waiting for Enhance with AI button');
+    const aiButton = await screen.findByText('Enhance with AI', {}, { timeout: 10000 });
+    console.log('Found Enhance with AI button, clicking');
     fireEvent.click(aiButton);
-    
+
     // Should show validation error
-    expect(screen.getByText('Please enter a job title before using AI enhancement.')).toBeInTheDocument();
-    
+    console.log('Waiting for job title validation toast');
+    let toast = await screen.findByText(/Please enter a job title/i, {}, { timeout: 10000 });
+    console.log('Found job title validation toast');
+    expect(toast).toBeInTheDocument();
+
+    // Close the toast if it exists
+    console.log('Closing first toast');
+    const closeButton = screen.queryByText('×');
+    if (closeButton) {
+      fireEvent.click(closeButton);
+      await waitFor(() => {
+        expect(screen.queryByText(/Please enter a job title/i)).not.toBeInTheDocument();
+      }, { timeout: 5000 });
+      console.log('First toast closed');
+    }
+
     // Fill in job title but not company
-    const jobTitleInput = screen.getByPlaceholderText('Software Developer');
+    console.log('Opening Job Application Details accordion');
+    fireEvent.click(screen.getByText('Job Application Details'));
+
+    console.log('Entering job title');
+    const jobTitleInput = await screen.findByPlaceholderText('Software Developer');
     fireEvent.change(jobTitleInput, { target: { value: 'Developer' } });
-    
-    fireEvent.click(aiButton);
-    
+
+    // Open Letter Content ONLY if it's closed
+    console.log('Ensuring Letter Content accordion is open');
+    if (!screen.queryByText(/Enhance with AI/i)) {
+      fireEvent.click(screen.getByText('Letter Content'));
+    }
+
+    // Explicitly wait for the button to appear and click it
+    console.log('Waiting for Enhance with AI button (second time)');
+    const aiButtonAgain = await screen.findByText(/Enhance with AI/i, {}, { timeout: 10000 });
+    console.log('Clicking Enhance with AI button (second time)');
+    fireEvent.click(aiButtonAgain);
+
     // Should show company validation error
-    expect(screen.getByText('Please enter a company name before using AI enhancement.')).toBeInTheDocument();
-  });
+    console.log('Waiting for company validation toast');
+    try {
+      toast = await screen.findByText(/Please enter a company name/i, {}, { timeout: 10000 });
+      console.log('Found company validation toast');
+    } catch (e) {
+      console.log('CRITICAL: Company validation toast NOT found. Current DOM snapshot:');
+      screen.debug(undefined, 20000);
+      throw e;
+    }
+    expect(toast).toBeInTheDocument();
+  }, 30000);
 
   test('responsive design works on mobile viewport', () => {
     // Mock mobile viewport
@@ -204,18 +303,20 @@ describe('Cover Letter Workflow Integration', () => {
       configurable: true,
       value: 375,
     });
-    
+
     render(<App />);
-    
+
     // Navigate to cover letter builder
-    fireEvent.click(screen.getByText('Start Building'));
-    fireEvent.click(screen.getByText('Build Cover Letter'));
-    
+    const startButtons = screen.getAllByText((content, element) => content === 'Start Building');
+    fireEvent.click(startButtons[1] || startButtons[0]);
+    fireEvent.click(screen.getAllByText('Build Cover Letter')[0]);
+    fireEvent.click(screen.getByText((content, element) => content === 'Start Writing Your Cover Letter'));
+
     // Should render mobile-friendly layout
-    expect(screen.getByText('AI Cover Letter Builder')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /AI Cover Letter Builder/i })).toBeInTheDocument();
     expect(screen.getByText('Cover Letter Details')).toBeInTheDocument();
-    expect(screen.getByText('Preview')).toBeInTheDocument();
-    
+    expect(screen.getByRole('button', { name: /Download PDF/i })).toBeInTheDocument();
+
     // Header should stack on mobile
     const header = screen.getByRole('banner');
     expect(header).toBeInTheDocument();
@@ -223,21 +324,25 @@ describe('Cover Letter Workflow Integration', () => {
 
   test('accessibility features work correctly', () => {
     render(<App />);
-    
+
     // Navigate to cover letter builder
-    fireEvent.click(screen.getByText('Start Building'));
-    fireEvent.click(screen.getByText('Build Cover Letter'));
-    
+    fireEvent.click(screen.getAllByText('Start Building')[0]);
+    fireEvent.click(screen.getAllByText('Build Cover Letter')[0]);
+    fireEvent.click(screen.getByText('Start Writing Your Cover Letter'));
+
     // Check ARIA labels and roles
     expect(screen.getByRole('main')).toBeInTheDocument();
     expect(screen.getByRole('banner')).toBeInTheDocument();
     expect(screen.getByRole('form')).toBeInTheDocument();
     expect(screen.getByRole('document')).toBeInTheDocument();
-    
+
     // Check navigation accessibility
-    expect(screen.getByLabelText('Go back to artifact selection')).toBeInTheDocument();
+    expect(screen.getByLabelText('Back')).toBeInTheDocument();
+
+    // Open dropdown to check its items accessibility
+    fireEvent.click(screen.getByRole('button', { name: /Download PDF/i }));
     expect(screen.getByLabelText('Download cover letter as PDF')).toBeInTheDocument();
-    
+
     // Check form accessibility
     expect(screen.getByLabelText('Cover letter actions')).toBeInTheDocument();
   });

@@ -5,6 +5,8 @@ import CoverLetterPreview from './CoverLetterPreview';
 import CoverLetterTemplatePanel from './CoverLetterTemplatePanel';
 import TypographyTab from '../customization/TypographyTab';
 import ColorTab from '../customization/ColorTab';
+import AuthButton from '../AuthButton';
+import { ChevronDown, Download, Eye } from 'lucide-react';
 
 // Declare html2pdf for TypeScript since it's loaded from a script tag
 declare var html2pdf: any;
@@ -28,6 +30,7 @@ const CoverLetterBuilder: React.FC<CoverLetterBuilderProps> = ({
 }) => {
   const [customization, setCustomization] = useState<CustomizationSettings>(initialCustomizationSettings);
   const [activeTab, setActiveTab] = useState<Tab>('Templates');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const handleTemplateSelect = (templateId: string) => {
     onUpdate({
@@ -149,20 +152,71 @@ const CoverLetterBuilder: React.FC<CoverLetterBuilderProps> = ({
               >
                 Build Resume now
               </button>
-              <button
-                onClick={handlePreviewPdf}
-                aria-label="Preview cover letter as PDF"
-                className="px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 dark:hover:bg-gray-600 transition-colors"
-              >
-                Preview
-              </button>
-              <button
-                onClick={handlePrintPdf}
-                aria-label="Download cover letter as PDF"
-                className="px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium text-white bg-green-600 border border-transparent rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
-              >
-                Download PDF
-              </button>
+
+              <div className="relative inline-block text-left">
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    className="inline-flex justify-center w-full px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white bg-green-600 border border-transparent rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 items-center transition-colors"
+                    id="options-menu"
+                    aria-expanded="true"
+                    aria-haspopup="true"
+                  >
+                    Download PDF
+                    <ChevronDown className="-mr-1 ml-1 sm:ml-2 h-4 w-4 sm:h-5 w-5" aria-hidden="true" />
+                  </button>
+                </div>
+
+                {isDropdownOpen && (
+                  <div
+                    className="origin-top-right absolute right-0 mt-2 w-56 sm:w-72 rounded-lg shadow-xl bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm ring-1 ring-black ring-opacity-5 focus:outline-none z-50 overflow-hidden animate-slideIn"
+                    role="menu"
+                    aria-orientation="vertical"
+                    aria-labelledby="options-menu"
+                  >
+                    <div className="p-1" role="none">
+                      <button
+                        onClick={() => {
+                          handlePreviewPdf();
+                          setIsDropdownOpen(false);
+                        }}
+                        aria-label="Preview cover letter as PDF"
+                        className="group flex w-full items-center p-2 sm:p-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-slate-100 dark:hover:bg-gray-700/50 rounded-lg transition-colors duration-150"
+                        role="menuitem"
+                      >
+                        <div className="flex-shrink-0 flex items-center justify-center h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-gray-50 dark:bg-gray-700/30 text-gray-600 dark:text-gray-400 group-hover:bg-gray-100 dark:group-hover:bg-gray-700/50 group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors">
+                          <Eye className="h-4 w-4 sm:h-5 w-5" />
+                        </div>
+                        <div className="ml-2 sm:ml-3 text-left">
+                          <p className="font-medium text-gray-900 dark:text-white text-xs sm:text-sm group-hover:text-gray-900 dark:group-hover:text-white">Preview</p>
+                          <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300">View how your cover letter looks</p>
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          handlePrintPdf();
+                          setIsDropdownOpen(false);
+                        }}
+                        aria-label="Download cover letter as PDF"
+                        className="group flex w-full items-center p-2 sm:p-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-slate-100 dark:hover:bg-gray-700/50 rounded-lg transition-colors duration-150 mt-1"
+                        role="menuitem"
+                      >
+                        <div className="flex-shrink-0 flex items-center justify-center h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 group-hover:bg-green-100 dark:group-hover:bg-green-900/50 group-hover:text-green-700 dark:group-hover:text-green-300 transition-colors">
+                          <Download className="h-4 w-4 sm:h-5 w-5" />
+                        </div>
+                        <div className="ml-2 sm:ml-3 text-left">
+                          <p className="font-medium text-gray-900 dark:text-white text-xs sm:text-sm group-hover:text-gray-900 dark:group-hover:text-white">Download PDF</p>
+                          <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300">Save your cover letter as a PDF file</p>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <AuthButton />
             </div>
           </nav>
         </div>

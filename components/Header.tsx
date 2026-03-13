@@ -1,5 +1,6 @@
 import React from 'react';
 import { ResumeData, CustomizationSettings } from '../types';
+import AuthButton from './AuthButton';
 
 interface HeaderProps {
   resumeData: ResumeData;
@@ -239,7 +240,7 @@ const Header: React.FC<HeaderProps> = ({ resumeData, customization, onBack, onBu
                     className="group flex w-full items-center p-3 text-sm text-gray-700 dark:text-gray-200 hover:bg-slate-100 dark:hover:bg-gray-700/50 rounded-lg transition-colors duration-150 mt-1"
                     role="menuitem"
                   >
-                    <div className="flex-shrink-0 flex items-center justify-center h-10 w-10 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/50 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors">
+                    <div className="flex-shrink-0 flex items-center justify-center h-10 w-10 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/50 group-hover:text-blue-700 dark:group-hover:text-purple-300 transition-colors">
                       <Download className="h-5 w-5" />
                     </div>
                     <div className="ml-3 text-left">
@@ -251,6 +252,8 @@ const Header: React.FC<HeaderProps> = ({ resumeData, customization, onBack, onBu
               </div>
             )}
           </div>
+
+          <AuthButton />
         </div>
       </header>
       <ATSModal
