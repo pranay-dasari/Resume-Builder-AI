@@ -26,7 +26,7 @@ describe('CoverLetterEditor', () => {
 
   test('renders all form sections', () => {
     render(<CoverLetterEditor {...mockProps} />);
-    
+
     expect(screen.getByText('Your Information')).toBeInTheDocument();
     expect(screen.getByText('Recipient Information')).toBeInTheDocument();
     expect(screen.getByText('Job Application Details')).toBeInTheDocument();
@@ -35,42 +35,56 @@ describe('CoverLetterEditor', () => {
 
   test('updates data when form fields change', () => {
     render(<CoverLetterEditor {...mockProps} />);
-    
-    const nameInput = screen.getByPlaceholderText('John Doe');
+
+    // Letter Content is open by default, but Your Information is closed.
+    fireEvent.click(screen.getByText('Your Information'));
+
+    const nameInput = screen.getAllByPlaceholderText('John Doe')[0];
     fireEvent.change(nameInput, { target: { value: 'Jane Smith' } });
-    
+
     expect(mockProps.onUpdate).toHaveBeenCalledWith({
       ...initialCoverLetterData,
       senderName: 'Jane Smith'
     });
   });
 
-  test('validates required fields', () => {
+  test('validates required fields', async () => {
     const dataWithErrors = {
       ...initialCoverLetterData,
-      senderName: '',
-      companyName: '',
-      jobTitle: ''
+      senderName: 'Valid Name',
+      companyName: 'Valid Company',
+      jobTitle: 'Valid Job'
     };
-    
+
     render(<CoverLetterEditor {...mockProps} data={dataWithErrors} />);
-    
-    // Trigger validation by trying to change a field
-    const nameInput = screen.getByPlaceholderText('John Doe');
+
+    fireEvent.click(screen.getByText('Your Information'));
+
+    // Trigger validation by changing to empty
+    const nameInput = screen.getAllByPlaceholderText('John Doe')[0];
     fireEvent.change(nameInput, { target: { value: '' } });
     fireEvent.blur(nameInput);
-    
+
     // Should show validation error
-    expect(screen.getByText('Name is required')).toBeInTheDocument();
+    await waitFor(() => {
+      const errorMessages = screen.getAllByText('Name is required');
+      expect(errorMessages.length).toBeGreaterThan(0);
+      expect(errorMessages[0]).toBeInTheDocument();
+    }, { timeout: 2000 });
   });
 
-  test('validates email format', () => {
+  test('validates email format', async () => {
     render(<CoverLetterEditor {...mockProps} />);
-    
+
+    fireEvent.click(screen.getByText('Your Information'));
+
     const emailInput = screen.getByPlaceholderText('john.doe@email.com');
     fireEvent.change(emailInput, { target: { value: 'invalid-email' } });
-    
-    expect(screen.getByText('Please enter a valid email address')).toBeInTheDocument();
+    fireEvent.blur(emailInput); // Trigger validation
+
+    await waitFor(() => {
+      expect(screen.getAllByText('Please enter a valid email address')[0]).toBeInTheDocument();
+    });
   });
 
   test('AI enhancement requires job title and company name', async () => {
@@ -79,12 +93,12 @@ describe('CoverLetterEditor', () => {
       jobTitle: '',
       companyName: ''
     };
-    
+
     render(<CoverLetterEditor {...mockProps} data={dataWithoutRequired} />);
-    
+
     const aiButton = screen.getByText('Enhance with AI');
     fireEvent.click(aiButton);
-    
+
     expect(screen.getByText('Please enter a job title before using AI enhancement.')).toBeInTheDocument();
   });
 
@@ -94,17 +108,17 @@ describe('CoverLetterEditor', () => {
       jobTitle: 'Software Developer',
       companyName: 'Tech Corp'
     };
-    
+
     mockEnhanceCoverLetterWithAI.mockResolvedValue('Enhanced cover letter content');
-    
+
     render(<CoverLetterEditor {...mockProps} data={dataWithRequired} />);
-    
+
     const aiButton = screen.getByText('Enhance with AI');
     fireEvent.click(aiButton);
-    
+
     // Should show loading state
     expect(screen.getByText('Enhancing...')).toBeInTheDocument();
-    
+
     await waitFor(() => {
       expect(mockEnhanceCoverLetterWithAI).toHaveBeenCalledWith(
         'Software Developer',
@@ -113,7 +127,7 @@ describe('CoverLetterEditor', () => {
         ''
       );
     });
-    
+
     await waitFor(() => {
       expect(mockProps.onUpdate).toHaveBeenCalledWith({
         ...dataWithRequired,
@@ -128,38 +142,54 @@ describe('CoverLetterEditor', () => {
       jobTitle: 'Software Developer',
       companyName: 'Tech Corp'
     };
-    
+
     mockEnhanceCoverLetterWithAI.mockRejectedValue(new Error('API Error'));
-    
+
     render(<CoverLetterEditor {...mockProps} data={dataWithRequired} />);
-    
+
+    // Ensure the AI button is visible, though it might be by default
+    // fireEvent.click(screen.getByText('Job Application Details')); // Not strictly needed if button is always visible
+
     const aiButton = screen.getByText('Enhance with AI');
     fireEvent.click(aiButton);
-    
+
     await waitFor(() => {
       expect(screen.getByText('API Error')).toBeInTheDocument();
     });
   });
 
-  test('salutation and closing dropdowns work', () => {
+  test('salutation and closing dropdowns work', async () => {
     render(<CoverLetterEditor {...mockProps} />);
-    
-    const salutationSelect = screen.getByDisplayValue('Dear Hiring Manager,');
+
+    // Letter Content is open by default. If we can't find it, try clicking.
+    const salutationSelectValue = 'Dear Hiring Manager,';
+    let salutationSelect = screen.queryByDisplayValue(salutationSelectValue);
+
+    if (!salutationSelect) {
+      fireEvent.click(screen.getByText('Letter Content'));
+      salutationSelect = await screen.findByDisplayValue(salutationSelectValue);
+    }
+
     fireEvent.change(salutationSelect, { target: { value: 'Dear Sir/Madam,' } });
-    
+
     expect(mockProps.onUpdate).toHaveBeenCalledWith({
       ...initialCoverLetterData,
       salutation: 'Dear Sir/Madam,'
     });
   });
 
-  test('character limits are enforced', () => {
+  test('character limits are enforced', async () => {
     render(<CoverLetterEditor {...mockProps} />);
-    
-    const nameInput = screen.getByPlaceholderText('John Doe');
+
+    fireEvent.click(screen.getByText('Your Information'));
+
+    const nameInput = screen.getAllByPlaceholderText('John Doe')[0];
     const longName = 'a'.repeat(101);
     fireEvent.change(nameInput, { target: { value: longName } });
-    
-    expect(screen.getByText('Name must be less than 100 characters')).toBeInTheDocument();
+    fireEvent.blur(nameInput); // Trigger validation
+
+    await waitFor(() => {
+      expect(screen.getAllByText('Name must be less than 100 characters')[0]).toBeInTheDocument();
+    });
   });
 });

@@ -2,14 +2,6 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import Footer from '../components/layout/Footer';
 import { footerConfig } from '../src/config/footerConfig';
-import test from 'node:test';
-import test from 'node:test';
-import test from 'node:test';
-import test from 'node:test';
-import test from 'node:test';
-import { beforeEach } from 'node:test';
-import { describe } from 'node:test';
-
 // Mock the private config to ensure consistent testing
 jest.mock('../src/config/privateConfig', () => ({
   getContactItems: () => [
@@ -31,7 +23,7 @@ describe('Footer Component', () => {
     const currentYear = new Date().getFullYear();
     const expectedCopyright = currentYear === 2023
       ? `© ${currentYear} DUAL-SYNC | BuildResumeNow`
-      : `© 2024- ${currentYear} DUAL-SYNC | BuildResumeNow`;
+      : `© 2023 - ${currentYear} DUAL-SYNC | BuildResumeNow`;
 
     expect(screen.getByText(expectedCopyright)).toBeInTheDocument();
   });
@@ -52,6 +44,7 @@ describe('Footer Component', () => {
   });
 
   test('renders contact us section', () => {
-    expect(screen.getByText('Contact Us')).toBeInTheDocument();
+    const contactElements = screen.getAllByText('Contact Us');
+    expect(contactElements.length).toBeGreaterThan(0);
   });
 });

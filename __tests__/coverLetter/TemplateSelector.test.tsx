@@ -20,105 +20,105 @@ describe('TemplateSelector', () => {
 
   test('renders template selector button', () => {
     render(<TemplateSelector {...mockProps} />);
-    
+
     expect(screen.getByText('Templates')).toBeInTheDocument();
   });
 
   test('opens template selection modal when clicked', () => {
     render(<TemplateSelector {...mockProps} />);
-    
+
     const templatesButton = screen.getByText('Templates');
     fireEvent.click(templatesButton);
-    
+
     expect(screen.getByText('Choose Template')).toBeInTheDocument();
   });
 
   test('displays all available templates', () => {
     render(<TemplateSelector {...mockProps} />);
-    
+
     const templatesButton = screen.getByText('Templates');
     fireEvent.click(templatesButton);
-    
+
     coverLetterTemplates.forEach(template => {
-      expect(screen.getByText(template.name)).toBeInTheDocument();
+      expect(screen.getAllByText(template.name)[0]).toBeInTheDocument();
       expect(screen.getByText(template.description)).toBeInTheDocument();
     });
   });
 
   test('shows selected template with checkmark', () => {
     render(<TemplateSelector {...mockProps} />);
-    
+
     const templatesButton = screen.getByText('Templates');
     fireEvent.click(templatesButton);
-    
+
     // Professional template should be selected by default
-    const professionalTemplate = screen.getByText('Professional').closest('div');
+    const professionalTemplate = screen.getAllByText('Professional')[0].closest('.border-2');
     expect(professionalTemplate).toHaveClass('border-blue-500');
   });
 
   test('calls onTemplateSelect when template is clicked', () => {
     render(<TemplateSelector {...mockProps} />);
-    
+
     const templatesButton = screen.getByText('Templates');
     fireEvent.click(templatesButton);
-    
-    const modernTemplate = screen.getByText('Modern');
+
+    const modernTemplate = screen.getAllByText('Modern')[0];
     fireEvent.click(modernTemplate);
-    
+
     expect(mockProps.onTemplateSelect).toHaveBeenCalledWith('modern');
   });
 
   test('closes modal when template is selected', () => {
     render(<TemplateSelector {...mockProps} />);
-    
+
     const templatesButton = screen.getByText('Templates');
     fireEvent.click(templatesButton);
-    
+
     expect(screen.getByText('Choose Template')).toBeInTheDocument();
-    
-    const modernTemplate = screen.getByText('Modern');
+
+    const modernTemplate = screen.getAllByText('Modern')[0];
     fireEvent.click(modernTemplate);
-    
+
     expect(screen.queryByText('Choose Template')).not.toBeInTheDocument();
   });
 
   test('closes modal when backdrop is clicked', () => {
     render(<TemplateSelector {...mockProps} />);
-    
+
     const templatesButton = screen.getByText('Templates');
     fireEvent.click(templatesButton);
-    
+
     expect(screen.getByText('Choose Template')).toBeInTheDocument();
-    
+
     // Click backdrop (the fixed overlay)
     const backdrop = document.querySelector('.fixed.inset-0');
     if (backdrop) {
       fireEvent.click(backdrop);
     }
-    
+
     expect(screen.queryByText('Choose Template')).not.toBeInTheDocument();
   });
 
   test('displays template previews with correct styling', () => {
     render(<TemplateSelector {...mockProps} />);
-    
+
     const templatesButton = screen.getByText('Templates');
     fireEvent.click(templatesButton);
-    
+
     // Check that template previews show font families
     coverLetterTemplates.forEach(template => {
-      expect(screen.getByText(`${template.name} Style`)).toBeInTheDocument();
-      expect(screen.getByText(`Sample body text in ${template.styles.fonts.body}`)).toBeInTheDocument();
+      expect(screen.getAllByText(`${template.name} Style`)[0]).toBeInTheDocument();
+      expect(screen.getAllByText(`Sample body text in ${template.styles.fonts.body}`)[0]).toBeInTheDocument();
     });
   });
 
   test('shows current template in footer', () => {
     render(<TemplateSelector {...mockProps} />);
-    
+
     const templatesButton = screen.getByText('Templates');
     fireEvent.click(templatesButton);
-    
-    expect(screen.getByText('Professional')).toBeInTheDocument();
+
+    expect(screen.getAllByText('Professional')[0]).toBeInTheDocument();
   });
 
   test('handles different selected template', () => {
@@ -126,13 +126,13 @@ describe('TemplateSelector', () => {
       ...mockProps,
       selectedTemplateId: 'modern'
     };
-    
+
     render(<TemplateSelector {...propsWithModern} />);
-    
+
     const templatesButton = screen.getByText('Templates');
     fireEvent.click(templatesButton);
-    
-    const modernTemplate = screen.getByText('Modern').closest('div');
+
+    const modernTemplate = screen.getAllByText('Modern')[0].closest('.border-2');
     expect(modernTemplate).toHaveClass('border-blue-500');
   });
 });

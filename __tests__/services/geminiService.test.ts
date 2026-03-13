@@ -1,18 +1,9 @@
 /**
- * @jest-environment node
+ * @jest-environment jsdom
  */
 
 import { enhanceCoverLetterWithAI } from '../../services/geminiService';
 import { initialResumeData } from '../../types';
-
-// Mock the Google GenAI
-jest.mock('@google/genai', () => ({
-  GoogleGenAI: jest.fn().mockImplementation(() => ({
-    models: {
-      generateContent: jest.fn()
-    }
-  }))
-}));
 
 const mockResumeData = {
   ...initialResumeData,
@@ -39,10 +30,12 @@ const mockResumeData = {
 };
 
 describe('geminiService', () => {
+  let mockFetch: jest.Mock;
+
   beforeEach(() => {
     jest.clearAllMocks();
-    // Mock environment variable
-    process.env.API_KEY = 'test-api-key';
+    mockFetch = jest.fn();
+    global.fetch = mockFetch;
   });
 
   describe('enhanceCoverLetterWithAI', () => {
@@ -58,17 +51,11 @@ describe('geminiService', () => {
       ).rejects.toThrow('Company name is required for AI enhancement');
     });
 
-    test('calls Gemini API with correct parameters', async () => {
-      const { GoogleGenAI } = require('@google/genai');
-      const mockGenerateContent = jest.fn().mockResolvedValue({
-        text: 'Generated cover letter content'
+    test('calls AI API via fetch with correct parameters', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ success: true, content: 'Generated cover letter content' })
       });
-      
-      GoogleGenAI.mockImplementation(() => ({
-        models: {
-          generateContent: mockGenerateContent
-        }
-      }));
 
       const result = await enhanceCoverLetterWithAI(
         'Software Developer',
@@ -77,31 +64,23 @@ describe('geminiService', () => {
         'Draft content'
       );
 
-      expect(mockGenerateContent).toHaveBeenCalledWith({
-        model: 'gemini-2.5-flash',
-        contents: expect.stringContaining('Software Developer'),
-        config: {
-          systemInstruction: expect.stringContaining('expert career consultant'),
-          temperature: 0.7,
-          topP: 1,
-          topK: 1
-        }
-      });
+      expect(mockFetch).toHaveBeenCalledWith('/api/ai', expect.objectContaining({
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      }));
 
+      const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+      expect(body.prompt).toContain('Software Developer');
+      expect(body.systemMessage).toContain('expert career consultant');
+      expect(body.type).toBe('coverLetter');
       expect(result).toBe('Generated cover letter content');
     });
 
-    test('includes resume context in the prompt', async () => {
-      const { GoogleGenAI } = require('@google/genai');
-      const mockGenerateContent = jest.fn().mockResolvedValue({
-        text: 'Generated content'
+    test('includes resume context in the payload', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ success: true, content: 'Generated content' })
       });
-      
-      GoogleGenAI.mockImplementation(() => ({
-        models: {
-          generateContent: mockGenerateContent
-        }
-      }));
 
       await enhanceCoverLetterWithAI(
         'Software Developer',
@@ -109,27 +88,30 @@ describe('geminiService', () => {
         mockResumeData
       );
 
-      const callArgs = mockGenerateContent.mock.calls[0][0];
-      const prompt = callArgs.contents;
+      const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+      expect(body.prompt).toContain('Software Developer');
+      expect(body.prompt).toContain('Tech Corp');
+      expect(body.prompt).toContain('Experienced software developer');
+      expect(body.prompt).toContain('Senior Developer at Tech Solutions');
+      expect(body.prompt).toContain('JavaScript, TypeScript, Python');
+    });
 
-      expect(prompt).toContain('Software Developer');
-      expect(prompt).toContain('Tech Corp');
-      expect(prompt).toContain('Experienced software developer');
-      expect(prompt).toContain('Senior Developer at Tech Solutions');
-      expect(prompt).toContain('JavaScript, TypeScript, Python');
+    test('handles HTTP errors gracefully', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 429
+      });
+
+      await expect(
+        enhanceCoverLetterWithAI('Developer', 'Tech Corp', mockResumeData)
+      ).rejects.toThrow('HTTP error! status: 429');
     });
 
     test('handles API errors gracefully', async () => {
-      const { GoogleGenAI } = require('@google/genai');
-      const mockGenerateContent = jest.fn().mockRejectedValue(
-        new Error('API rate limit exceeded')
-      );
-      
-      GoogleGenAI.mockImplementation(() => ({
-        models: {
-          generateContent: mockGenerateContent
-        }
-      }));
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ success: false, error: 'API rate limit exceeded' })
+      });
 
       await expect(
         enhanceCoverLetterWithAI('Developer', 'Tech Corp', mockResumeData)
@@ -137,16 +119,10 @@ describe('geminiService', () => {
     });
 
     test('includes body draft when provided', async () => {
-      const { GoogleGenAI } = require('@google/genai');
-      const mockGenerateContent = jest.fn().mockResolvedValue({
-        text: 'Enhanced content'
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ success: true, content: 'Enhanced content' })
       });
-      
-      GoogleGenAI.mockImplementation(() => ({
-        models: {
-          generateContent: mockGenerateContent
-        }
-      }));
 
       await enhanceCoverLetterWithAI(
         'Developer',
@@ -155,21 +131,16 @@ describe('geminiService', () => {
         'My draft content'
       );
 
-      const callArgs = mockGenerateContent.mock.calls[0][0];
-      expect(callArgs.contents).toContain('My draft content');
+      const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+      expect(body.prompt).toContain('My draft content');
+      expect(body.bodyDraft).toBe('My draft content');
     });
 
     test('handles empty resume data gracefully', async () => {
-      const { GoogleGenAI } = require('@google/genai');
-      const mockGenerateContent = jest.fn().mockResolvedValue({
-        text: 'Generated content'
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ success: true, content: 'Generated content' })
       });
-      
-      GoogleGenAI.mockImplementation(() => ({
-        models: {
-          generateContent: mockGenerateContent
-        }
-      }));
 
       const emptyResumeData = {
         ...initialResumeData,
@@ -185,7 +156,7 @@ describe('geminiService', () => {
       );
 
       expect(result).toBe('Generated content');
-      expect(mockGenerateContent).toHaveBeenCalled();
+      expect(mockFetch).toHaveBeenCalled();
     });
 
     test('trims whitespace from required fields', async () => {
